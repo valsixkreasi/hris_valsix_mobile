@@ -1,0 +1,22 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="vn.hunghd.flutterdownloader" >
+4
+5    <uses-sdk android:minSdkVersion="21" />
+6
+7    <!-- See https://developer.android.com/training/package-visibility -->
+8    <queries>
+8-->/Users/valsix/.pub-cache/hosted/pub.dev/flutter_downloader-1.12.0/android/src/main/AndroidManifest.xml:5:5-9:15
+9        <intent>
+9-->/Users/valsix/.pub-cache/hosted/pub.dev/flutter_downloader-1.12.0/android/src/main/AndroidManifest.xml:6:9-8:18
+10            <action android:name="android.intent.action.VIEW" />
+10-->/Users/valsix/.pub-cache/hosted/pub.dev/flutter_downloader-1.12.0/android/src/main/AndroidManifest.xml:7:13-65
+10-->/Users/valsix/.pub-cache/hosted/pub.dev/flutter_downloader-1.12.0/android/src/main/AndroidManifest.xml:7:21-62
+11        </intent>
+12    </queries>
+13
+14    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+14-->/Users/valsix/.pub-cache/hosted/pub.dev/flutter_downloader-1.12.0/android/src/main/AndroidManifest.xml:10:5-77
+14-->/Users/valsix/.pub-cache/hosted/pub.dev/flutter_downloader-1.12.0/android/src/main/AndroidManifest.xml:10:22-74
+15
+16</manifest>

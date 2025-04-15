@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout-v21/notification_template_custom_big.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout-v21/notification_action_tombstone.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout-v21/notification_template_icon_group.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout-v21/notification_action.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout-v21/notification_action.xml"
+    }
+]

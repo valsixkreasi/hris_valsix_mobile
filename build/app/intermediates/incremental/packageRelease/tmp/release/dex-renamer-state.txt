@@ -1,0 +1,4 @@
+#Thu Mar 20 10:14:18 WIB 2025
+base.0=/Volumes/RX/Flutter/ptpn1-hris/build/app/intermediates/dex/release/minifyReleaseWithR8/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex

@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/notification_action_tombstone.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/custom_dialog.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/ime_base_split_test_activity.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/ime_base_split_test_activity.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/notification_template_part_chronometer.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/notification_template_icon_group.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/ime_secondary_split_test_activity.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/ime_secondary_split_test_activity.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/notification_action.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/notification_action.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/notification_template_part_time.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "dev.kaichi.easy_pdf_viewer-merged_res-25:/layout/notification_template_custom_big.xml",
+        "source": "dev.kaichi.easy_pdf_viewer-core-1.13.1-12:/layout/notification_template_custom_big.xml"
+    }
+]
