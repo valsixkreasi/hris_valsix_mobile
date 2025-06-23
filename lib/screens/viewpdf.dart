@@ -126,16 +126,16 @@ class _ViewPDFState extends State<ViewPDF> {
   }
 
   loadDocument() async {
+    print(' url => ${argum['url']}');
     document = await PDFDocument.fromURL(
       argum['url'],
-
-      /* cacheManager: CacheManager(
+      cacheManager: CacheManager(
         Config(
           "customCacheKey",
-          stalePeriod: const Duration(days: 2),
+          stalePeriod: const Duration(days: 0, hours: 0, minutes: 0),
           maxNrOfCacheObjects: 10,
         ),
-      ), */
+      ),
     );
 
     setState(() => _isLoading = false);
@@ -179,24 +179,25 @@ class _ViewPDFState extends State<ViewPDF> {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    // download(argum['url'], '${argum['title']}.pdf');
-                    // download(
-                    //     'https://tinypng.com/images/social/developer-api.jpg',
-                    //     'PANDA.jpg');
+                argum['btn_download']
+                    ? IconButton(
+                        onPressed: () {
+                          // download(argum['url'], '${argum['title']}.pdf');
+                          // download(
+                          //     'https://tinypng.com/images/social/developer-api.jpg',
+                          //     'PANDA.jpg');
 
-                    downloadFile(argum['url'], '${argum['title']}.pdf');
-                    // downloadFile(
-                    //     'https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf',
-                    //     'sample.pdf');
-                  },
-                  icon: Icon(
-                    Icons.download_rounded,
-                    color: Constants.primaryBlue,
-                  ),
-                ),
-                // SizedBox(width: 40.sp),
+                          downloadFile(argum['url'], '${argum['title']}.pdf');
+                          // downloadFile(
+                          //     'https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf',
+                          //     'sample.pdf');
+                        },
+                        icon: Icon(
+                          Icons.download_rounded,
+                          color: Constants.primaryBlue,
+                        ),
+                      )
+                    : SizedBox(width: 40.sp),
               ],
             ),
           ),

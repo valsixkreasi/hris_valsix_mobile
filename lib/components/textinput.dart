@@ -11,20 +11,26 @@ class TextInput extends StatefulWidget {
     this.obscureText = false,
     this.enabled = true,
     this.required = false,
+    this.readOnly = false,
+    this.suffixIcon,
     this.errorText,
     this.keyboardType,
     this.onchanged,
+    this.ontap,
     super.key,
   });
 
   final void Function(String?)? onchanged;
+  final void Function()? ontap;
   final String initialValue;
   final String hintText;
   final String label;
   final String? errorText;
+  final Widget? suffixIcon;
   final bool obscureText;
   final bool enabled;
   final bool required;
+  final bool readOnly;
   final TextInputType? keyboardType;
 
   @override
@@ -114,6 +120,8 @@ class _TextInput extends State<TextInput> {
       //   return null;
       // },
       onChanged: widget.onchanged,
+      onTap: widget.ontap,
+      readOnly: widget.readOnly,
       keyboardType: widget.keyboardType,
       style: TextStyle(
         color: Colors.black,
@@ -125,6 +133,7 @@ class _TextInput extends State<TextInput> {
       obscureText: widget.obscureText,
       decoration: Constants.inputDecorationV2(
         widget.label,
+        suffixIcon: widget.enabled ? widget.suffixIcon : null,
         errorText: widget.errorText,
         enabled: widget.enabled,
       ),

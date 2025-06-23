@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Constants {
   static Map<String, dynamic> session = <String, dynamic>{};
@@ -23,9 +24,15 @@ class Constants {
   //     ? 'http://103.130.130.233:81/ptpn-hris/public/'
   //     : 'http://103.130.130.233:81/ptpn-hris/public/';
 
+// DEV PTPN
+  static const String baseUrl =
+      'http://103.130.130.233:81/ptpn-hris/public/api/';
+  static const String baseWebUrl =
+      'http://103.130.130.233:81/ptpn-hris/public/';
+
 // PROD PTPN
-  static const String baseUrl = 'https://hris.ptpn1.co.id/api/';
-  static const String baseWebUrl = 'https://hris.ptpn1.co.id/';
+  // static const String baseUrl = 'https://hris.ptpn1.co.id/api/';
+  // static const String baseWebUrl = 'https://hris.ptpn1.co.id/';
 
   static String md5Key = 'P3LB8M';
   static Color primaryGreen = Color(0xff2ccd39);
@@ -211,7 +218,7 @@ class Constants {
         style: TextStyle(
           fontFamily: 'GrenadineMVB',
           fontWeight: FontWeight.w600,
-          fontSize: 16.sp,
+          fontSize: 13.sp,
           color: Colors.black,
         ),
       ),
@@ -277,16 +284,16 @@ class Constants {
   }
 
   static Future<String> get(String url) async {
-    if (url.contains('?')) {
-      url = '$url&reqToken=' + (Constants.session['token_user_login'] ?? '');
-    } else {
-      url = '$url?reqToken=' + (Constants.session['token_user_login'] ?? '');
-    }
     print(Constants.baseUrl + url);
     Uri uri = Uri.parse(Constants.baseUrl + url);
 
     try {
-      final response = await http.get(uri);
+      final response = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer ' + (Constants.session['token'] ?? ''),
+        },
+      );
 
       if (response.statusCode == 200) {
         return response.body;
@@ -376,17 +383,15 @@ class Constants {
 
   static Future<String> postFile(String url, Map<String, String> body,
       {Map<String, String>? files}) async {
-    if (url.contains('?')) {
-      url = '$url&reqToken=' + (Constants.session['token_user_login'] ?? '');
-    } else {
-      url = '$url?reqToken=' + (Constants.session['token_user_login'] ?? '');
-    }
+    Map<String, String> headers = {
+      'Content-Type': 'application/form-data',
+      'Authorization': 'Bearer ' + (Constants.session['token'] ?? ''),
+    };
 
     Uri uri = Uri.parse(Constants.baseUrl + url);
     var request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(headers);
     request.fields.addAll(body);
-    request.fields
-        .addAll({'reqToken': (Constants.session['token_user_login'] ?? '')});
 
     if (files != null) {
       for (var file in files.entries) {
@@ -400,6 +405,7 @@ class Constants {
 
     print(Constants.baseUrl + url);
     print(request.fields);
+    print(request.files);
 
     try {
       var response = await request.send();
@@ -438,6 +444,11 @@ class Constants {
         'message': 'Koneksi gagal. Coba lagi nanti.',
       });
     }
+  }
+
+  static void launchUrl(String item, {String path = ''}) async {
+    var url = Constants.baseUrl + '../' + path + item;
+    if (!await launch(url)) throw 'Could not launch $url';
   }
 
   static List<Map<String, dynamic>> menuProfil = [
@@ -520,6 +531,11 @@ class Constants {
       'icon': 'paste',
       'title': 'Kontrak (PKWT)',
       'route': '/pkwt',
+    },
+    {
+      'icon': 'history_edu',
+      'title': 'Log Pengajuan',
+      'route': '/log_pengajuan',
     },
   ];
 }

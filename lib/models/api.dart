@@ -30,8 +30,7 @@ class ApiModel {
   ApiModel(this._url);
 
   Future get() async {
-    String uriParam =
-        '?iSortCol_0=0&sSortDir_0=asc&iSortingCols=1&bSortable_0=true';
+    String uriParam = '';
     _param.forEach((key, value) {
       uriParam += '&$key=$value';
     });
@@ -40,9 +39,20 @@ class ApiModel {
     return jsonDecode(response);
   }
 
+  Future getCombo() async {
+    // Map<String, String> _body = {};
+    // print(_body);
+    var response = await Constants.postJson(_url, _body);
+    List<dynamic> res = jsonDecode(response);
+    List<Map<String, dynamic>> result =
+        res.map((e) => e as Map<String, dynamic>).toList();
+    return result;
+  }
+
   Future postJson() async {
     Map<String, String> _body = {};
     var response = await Constants.postJson(_url, _body);
+    // print(response);
     return jsonDecode(response);
   }
 

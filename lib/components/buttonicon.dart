@@ -28,7 +28,7 @@ class _ButtonIconState extends State<ButtonIcon> {
         foregroundColor: widget.labelColor,
         backgroundColor: widget.bgColor,
         padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-        minimumSize: Size(100, 30),
+        minimumSize: Size(100, 34),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       onPressed: widget.onPressed,

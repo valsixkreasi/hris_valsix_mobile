@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hris/components/button.dart';
+import 'package:hris/components/filepicker.dart';
 import 'package:hris/components/flutter_screenutil/flutter_screenutil.dart';
 import 'package:hris/components/inputview.dart';
 import 'package:hris/components/navheader.dart';
+import 'package:hris/configs/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<String?> _getData() async {
@@ -14,19 +17,20 @@ Future<String?> _getData() async {
   return prefs.getString('profil');
 }
 
-class Sertifikat extends StatefulWidget {
-  const Sertifikat({super.key});
+class LogPengajuan extends StatefulWidget {
+  const LogPengajuan({super.key});
 
   @override
-  State<Sertifikat> createState() => _SertifikatState();
+  State<LogPengajuan> createState() => _LogPengajuanState();
 }
 
-class _SertifikatState extends State<Sertifikat> {
+class _LogPengajuanState extends State<LogPengajuan> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
 
   List<Map<String, dynamic>> data = [];
+  FilePickerResult? dokumen;
 
   @override
   void initState() {
@@ -42,7 +46,7 @@ class _SertifikatState extends State<Sertifikat> {
       // print(value);
       if (value != null) {
         Map<String, dynamic> profil = jsonDecode(value) as Map<String, dynamic>;
-        List<Map<String, dynamic>> arrData = List.from(profil['sertifikat']);
+        List<Map<String, dynamic>> arrData = List.from(profil['log_pengajuan']);
 
         setState(() {
           data = arrData;
@@ -82,7 +86,7 @@ class _SertifikatState extends State<Sertifikat> {
                 }),
                 Expanded(
                   child: Text(
-                    'DATA SERTIFIKAT',
+                    'LOG PENGAJUAN',
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -117,6 +121,13 @@ class _SertifikatState extends State<Sertifikat> {
                         children: [
                           ...List.generate(data.length, (index) {
                             Map<String, dynamic> dataItem = data[index];
+                            String pathFile = '';
+
+                            if (dataItem['dokumen'] != '') {
+                              pathFile =
+                                  Constants.baseWebUrl + dataItem['dokumen'];
+                            }
+
                             return Card(
                               elevation: 4.0,
                               // color: Constants.primaryBlue,
@@ -142,20 +153,51 @@ class _SertifikatState extends State<Sertifikat> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          dataItem['nama'] ?? '-',
+                                          dataItem['jenis_pengajuan'] ?? '-',
                                           style: TextStyle(
                                               fontFamily: 'GrenadineMVB',
                                               fontWeight: FontWeight.bold,
                                               fontSize: 11.sp),
                                         ),
-                                        Text(
-                                          '${dataItem['nomor'] ?? '-'}',
-                                          style: TextStyle(
-                                            fontFamily: 'GrenadineMVB',
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                '${dataItem['created_date'] ?? '-'}',
+                                                style: TextStyle(
+                                                  fontFamily: 'GrenadineMVB',
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 10.sp,
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 2, horizontal: 6),
+                                              decoration: BoxDecoration(
+                                                color: dataItem['status'] ==
+                                                        'POSTING'
+                                                    ? Constants.primaryBlue
+                                                    : dataItem['status'] ==
+                                                            'APPROVE'
+                                                        ? Constants.primaryGreen
+                                                        : Constants
+                                                            .primaryYellow,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                '${dataItem['status_desc'] ?? '-'}',
+                                                style: TextStyle(
+                                                  fontFamily: 'GrenadineMVB',
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 9.sp,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
                                       ],
                                     ),
                                   ),
@@ -171,20 +213,22 @@ class _SertifikatState extends State<Sertifikat> {
                                           height: 5.sp,
                                         ),
                                         InputView(
-                                            label: 'Diterbitkan Oleh :',
+                                            label: 'No. Referensi :',
+                                            value: dataItem['no_referensi'] ??
+                                                '-'),
+                                        InputView(
+                                            label: 'Deskripsi :',
                                             value:
-                                                dataItem['diterbitkan_oleh'] ??
-                                                    '-'),
+                                                '${dataItem['deskripsi'] ?? '-'}'),
+                                        // InputView(
+                                        //     label: 'Status :',
+                                        //     value:
+                                        //         '${dataItem['status_desc'] ?? '-'}'),
                                         InputView(
-                                            label: 'Tanggal Terbit	 :',
-                                            value: dataItem['tanggal'] ?? '-'),
-                                        InputView(
-                                            label: 'Tanggal Kadaluarsa :',
-                                            value:
-                                                dataItem['tanggal_expired'] ??
-                                                    '-'),
-                                        InputView(
-                                            label: 'Sertifikat :', value: '-'),
+                                          label: 'Dokumen :',
+                                          value: '-',
+                                          link: pathFile,
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -194,7 +238,9 @@ class _SertifikatState extends State<Sertifikat> {
                           })
                         ],
                       )
-                    : Center(heightFactor: 20, child: Text('Tidak ada data.')),
+                    : SizedBox(
+                        height: 0.6.sh,
+                        child: Center(child: Text('Tidak ada data.'))),
               ),
             ]),
           ]),

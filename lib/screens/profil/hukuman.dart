@@ -107,7 +107,7 @@ class _HukumanState extends State<Hukuman> {
             Stack(children: [
               Container(
                 width: 1.sw,
-                height: 1.sh - ScreenUtil().statusBarHeight,
+                // height: 1.sh - ScreenUtil().statusBarHeight,
                 padding:
                     EdgeInsets.symmetric(vertical: 20.sp, horizontal: 10.sp),
                 margin: EdgeInsets.only(top: 40.sp),

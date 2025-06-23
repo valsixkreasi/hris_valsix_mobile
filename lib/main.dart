@@ -13,22 +13,34 @@ import 'package:hris/screens/splash.dart';
 import 'package:hris/screens/home.dart';
 import 'package:hris/screens/viewpdf.dart';
 
+import 'package:hris/screens/notifikasi.dart';
+import 'package:hris/screens/jadwal_pelatihan.dart';
+
 import 'package:hris/screens/profil/identitas.dart';
 import 'package:hris/screens/profil/pribadi.dart';
 import 'package:hris/screens/profil/keluarga.dart';
-import 'package:hris/screens/profil/jabatan.dart';
+import 'package:hris/screens/profil/jabatan/jabatan.dart';
+import 'package:hris/screens/profil/jabatan/jabatan_add.dart';
+import 'package:hris/screens/profil/jabatan/jabatan_view.dart';
 import 'package:hris/screens/profil/rangkap.dart';
 import 'package:hris/screens/profil/penugasan.dart';
 import 'package:hris/screens/profil/pendidikan.dart';
-import 'package:hris/screens/profil/pelatihan.dart';
-import 'package:hris/screens/profil/sertifikat.dart';
-import 'package:hris/screens/profil/pengalaman.dart';
+import 'package:hris/screens/profil/pelatihan/pelatihan.dart';
+import 'package:hris/screens/profil/pelatihan/pelatihan_add.dart';
+import 'package:hris/screens/profil/pelatihan/pelatihan_view.dart';
+import 'package:hris/screens/profil/sertifikat/sertifikat.dart';
+import 'package:hris/screens/profil/sertifikat/sertifikat_add.dart';
+import 'package:hris/screens/profil/sertifikat/sertifikat_view.dart';
+import 'package:hris/screens/profil/pengalaman/pengalaman.dart';
+import 'package:hris/screens/profil/pengalaman/pengalaman_add.dart';
+import 'package:hris/screens/profil/pengalaman/pengalaman_view.dart';
 import 'package:hris/screens/profil/penghargaan.dart';
 import 'package:hris/screens/profil/hukuman.dart';
 import 'package:hris/screens/profil/kesehatan.dart';
 import 'package:hris/screens/profil/emergency.dart';
-import 'package:hris/screens/profil/tanggalacuan.dart';
+import 'package:hris/screens/profil/tanggal_acuan.dart';
 import 'package:hris/screens/profil/pkwt.dart';
+import 'package:hris/screens/profil/log_pengajuan.dart';
 
 import 'package:hris/screens/cuti/monitoring.dart';
 import 'package:hris/screens/cuti/add.dart';
@@ -108,22 +120,41 @@ class _MyApp extends State<MyApp> {
                 '/': (context) => const Splash(),
                 '/home': (context) => Home(),
                 '/viewpdf': (context) => ViewPDF(arguments: settings.arguments),
+                '/notifikasi': (context) => const Notifikasi(),
+                '/jadwal_pelatihan': (context) => const JadwalPelatihan(),
                 '/identitas': (context) => const Identitas(),
                 '/pribadi': (context) => const Pribadi(),
                 '/keluarga': (context) => const Keluarga(),
                 '/jabatan': (context) => const Jabatan(),
+                '/jabatan_add': (context) =>
+                    JabatanAdd(arguments: settings.arguments),
+                '/jabatan_view': (context) =>
+                    JabatanView(arguments: settings.arguments),
                 '/rangkap': (context) => const Rangkap(),
                 '/penugasan': (context) => const Penugasan(),
                 '/pendidikan': (context) => const Pendidikan(),
                 '/pelatihan': (context) => const Pelatihan(),
+                '/pelatihan_add': (context) =>
+                    PelatihanAdd(arguments: settings.arguments),
+                '/pelatihan_view': (context) =>
+                    PelatihanView(arguments: settings.arguments),
                 '/sertifikat': (context) => const Sertifikat(),
+                '/sertifikat_add': (context) =>
+                    SertifikatAdd(arguments: settings.arguments),
+                '/sertifikat_view': (context) =>
+                    SertifikatView(arguments: settings.arguments),
                 '/pengalaman': (context) => const Pengalaman(),
+                '/pengalaman_add': (context) =>
+                    PengalamanAdd(arguments: settings.arguments),
+                '/pengalaman_view': (context) =>
+                    PengalamanView(arguments: settings.arguments),
                 '/penghargaan': (context) => const Penghargaan(),
                 '/hukuman': (context) => const Hukuman(),
                 '/kesehatan': (context) => const Kesehatan(),
                 '/emergency': (context) => const Emergency(),
                 '/tanggal_acuan': (context) => const TanggalAcuan(),
                 '/pkwt': (context) => const Pkwt(),
+                '/log_pengajuan': (context) => const LogPengajuan(),
                 '/pengajuan_cuti': (context) => const PengajuanCuti(),
                 '/pengajuan_cuti_add': (context) => PengajuanCutiAdd(),
                 '/pengajuan_cuti_view': (context) => PengajuanCutiView(),

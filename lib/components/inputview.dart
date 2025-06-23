@@ -4,11 +4,13 @@ import 'package:hris/components/flutter_screenutil/flutter_screenutil.dart';
 class InputView extends StatelessWidget {
   final String label;
   final String value;
+  final String link;
 
   const InputView({
     super.key,
     this.label = 'Label',
     this.value = '',
+    this.link = '',
   });
 
   @override
@@ -33,13 +35,30 @@ class InputView extends StatelessWidget {
                 fontSize: 10.sp,
                 color: Colors.black),
           ),
-          Text(
-            value,
-            style: TextStyle(
-                // fontFamily: 'GrenadineMVB',
-                fontSize: 11.sp,
-                color: Colors.grey[600]),
-          ),
+          link == ''
+              ? Text(
+                  value,
+                  style: TextStyle(
+                      // fontFamily: 'GrenadineMVB',
+                      fontSize: 11.sp,
+                      color: Colors.grey[600]),
+                )
+              : InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/viewpdf', arguments: {
+                      'url': link,
+                      'title': 'Dokumen',
+                      'btn_download': false,
+                    });
+                  },
+                  child: Text(
+                    'Lihat dokumen',
+                    style: TextStyle(
+                        // fontFamily: 'GrenadineMVB',
+                        fontSize: 11.sp,
+                        color: const Color(0xff3174c7)),
+                  ),
+                ),
         ],
       ),
     );

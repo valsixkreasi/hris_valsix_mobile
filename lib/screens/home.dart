@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,6 +9,7 @@ import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:hris/components/button.dart';
 import 'package:hris/components/buttonicon.dart';
 import 'package:hris/components/flutter_screenutil/flutter_screenutil.dart';
+import 'package:hris/components/inputview.dart';
 import 'package:hris/components/navheader.dart';
 import 'package:hris/components/infopegawaihome.dart';
 import 'package:hris/components/mainmenuhome.dart';
@@ -36,6 +38,13 @@ class _HomeState extends State<Home> {
 
   String password = '';
   String passwordUlang = '';
+
+  @override
+  void initState() {
+    EasyLoading.show(status: 'Loading...', maskType: EasyLoadingMaskType.black);
+
+    super.initState();
+  }
 
   Future<void> ubahPasswordbak(BuildContext context) {
     return showDialog<void>(
@@ -186,6 +195,70 @@ class _HomeState extends State<Home> {
     ).show();
   }
 
+  Future<void> popupPelatihan(
+      BuildContext context, Map<String, dynamic> itemsPelatihan) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Detil Pelatihan'),
+          titleTextStyle: TextStyle(
+            fontFamily: 'GrenadineMVB',
+            fontWeight: FontWeight.bold,
+            fontSize: 14.sp,
+            color: Constants.primaryBlue,
+          ),
+          backgroundColor: Colors.white,
+          content: SingleChildScrollView(
+            child: Stack(
+              children: [
+                Container(
+                  width: 1.sw,
+                  child: Column(
+                    children: [
+                      InputView(
+                        label: 'Nama Pelatihan',
+                        value: itemsPelatihan['nama'],
+                      ),
+                      InputView(
+                        label: 'Kategori Pelatihan',
+                        value: itemsPelatihan['kategori_pelatihan'],
+                      ),
+                      InputView(
+                        label: 'Jenis Pelatihan',
+                        value: itemsPelatihan['jenis_pelatihan'],
+                      ),
+                      InputView(
+                        label: 'Tujuan',
+                        value: itemsPelatihan['tujuan'],
+                      ),
+                      InputView(
+                        label: 'Kurikulum',
+                        value: itemsPelatihan['kurikulum'],
+                      ),
+                      InputView(
+                        label: 'Penyelenggara',
+                        value: itemsPelatihan['penyelenggara'],
+                      ),
+                      InputView(
+                        label: 'Lokasi',
+                        value: itemsPelatihan['lokasi'],
+                      ),
+                      InputView(
+                        label: 'Tingkat',
+                        value: itemsPelatihan['tingkat'],
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> submitUbah() async {
     Map<String, String> body = {
       'password': password,
@@ -273,19 +346,14 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  void initState() {
-    EasyLoading.show(status: 'Loading...', maskType: EasyLoadingMaskType.black);
-
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     HomeModel homeData = context.watch<HomeModel>();
     Map<String, dynamic> data = homeData.data;
     Map<String, dynamic> profil = {};
     Map<String, dynamic> presensi = {};
+    List<dynamic> notifikasi = [];
     List<dynamic> peraturan = [];
+    List<dynamic> pelatihan = [];
     String cetak_cv = '';
 
     if (data.isNotEmpty) {
@@ -299,10 +367,18 @@ class _HomeState extends State<Home> {
       if (data.containsKey('peraturan')) {
         peraturan = data['peraturan'];
       }
+      if (data.containsKey('notifikasi')) {
+        notifikasi = data['notifikasi'];
+      }
+      if (data.containsKey('pelatihan')) {
+        pelatihan = data['pelatihan'];
+      }
 
       cetak_cv = data['cetak_cv'];
 
-      EasyLoading.dismiss();
+      Timer(const Duration(seconds: 1), () {
+        EasyLoading.dismiss();
+      });
     }
 
     List<Map<String, dynamic>> menu = [
@@ -335,38 +411,6 @@ class _HomeState extends State<Home> {
         'title': 'Reimburse',
         'icon': 'assets/images/icons8-refund.png',
         'route': ''
-      },
-    ];
-
-    List<dynamic> notifikasi = [
-      {
-        'title': 'Permohonan cuti tahunan nomor 22/PJBS/111/2025',
-        'tanggal': '1 Maret 2025',
-        'status': 'Menuggu persetujuan Manager',
-      },
-    ];
-
-    List<dynamic> jadwalTraining = [
-      {
-        'title': 'Menguasai Pengetahuan Tentang Wisata Agro ',
-        'penyelenggara': 'Kemnaker RI',
-        'tanggal': '16 Januari 2025',
-        'jam': '08:00',
-        'lokasi': 'Gedung Vokasi Kemnaker',
-      },
-      {
-        'title': 'Menguasai Pengetahuan ',
-        'penyelenggara': 'Kemnaker RI',
-        'tanggal': '16 Januari 2025',
-        'jam': '08:00',
-        'lokasi': 'Gedung Vokasi Kemnaker',
-      },
-      {
-        'title': 'Menguasai Pengetahuan Tentang Wisata Agro ',
-        'penyelenggara': 'Kemnaker RI',
-        'tanggal': '16 Januari 2025',
-        'jam': '08:00',
-        'lokasi': 'Gedung Vokasi Kemnaker',
       },
     ];
 
@@ -730,6 +774,7 @@ class _HomeState extends State<Home> {
                                           arguments: {
                                             'url': cetak_cv,
                                             'title': 'Cetak CV',
+                                            'btn_download': true,
                                           });
                                     },
                                   ),
@@ -925,16 +970,20 @@ class _HomeState extends State<Home> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          'Lihat semua >',
-                          style: TextStyle(
-                            fontFamily: 'GrenadineMVB',
-                            fontSize: 9.sp,
-                            color: Color(0xffff5055),
-                            decoration: TextDecoration.underline,
-                            decorationColor: Color(0xffff5055),
+                        InkWell(
+                          child: Text(
+                            'Lihat semua >',
+                            style: TextStyle(
+                              fontFamily: 'GrenadineMVB',
+                              fontSize: 9.sp,
+                              color: Color(0xffff5055),
+                              decoration: TextDecoration.underline,
+                              decorationColor: Color(0xffff5055),
+                            ),
                           ),
-                        )
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/notifikasi'),
+                        ),
                       ],
                     ),
                   ),
@@ -955,77 +1004,84 @@ class _HomeState extends State<Home> {
                         ),
                       ],
                     ),
-                    child: Column(
-                      children: [
-                        ...List.generate(notifikasi.length, (index) {
-                          Map<String, dynamic> itemNotifikasi =
-                              notifikasi[index];
-                          String tanggal = itemNotifikasi['tanggal'];
-                          String title = itemNotifikasi['title'];
-                          String status = itemNotifikasi['status'];
-                          return Container(
-                            padding: EdgeInsets.only(top: 8.sp, bottom: 8.sp),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Color(0xffcccccc),
-                                  width: 0.7.sp,
-                                ),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  // color: Color(0xffffffff),
-                                  padding: EdgeInsets.all(8.sp),
+                    child: notifikasi.length > 0
+                        ? Column(
+                            children: [
+                              ...List.generate(notifikasi.length > 0 ? 2 : 0,
+                                  (index) {
+                                Map<String, dynamic> itemNotifikasi =
+                                    notifikasi[index];
+                                String tanggal = itemNotifikasi['tanggal'];
+                                String title = itemNotifikasi['notifikasi'];
+                                String status =
+                                    'Silahkan melakukan penilaian disini';
+                                return Container(
+                                  padding:
+                                      EdgeInsets.only(top: 8.sp, bottom: 8.sp),
                                   decoration: BoxDecoration(
-                                      // ignore: deprecated_member_use
-                                      color: Colors.grey.withOpacity(0.1),
-                                      shape: BoxShape.circle),
-                                  child: Image.asset(
-                                    'assets/images/icons8-alarm.png',
-                                    width: 18.sp,
-                                    height: 18.sp,
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Color(0xffcccccc),
+                                        width: 0.7.sp,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  width: 0.76.sw,
-                                  // color: Color(0xffcccccc),
-                                  padding: EdgeInsets.only(left: 10.sp),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  child: Row(
                                     children: [
-                                      Text(
-                                        tanggal,
-                                        style: TextStyle(
-                                          fontSize: 9.sp,
+                                      Container(
+                                        // color: Color(0xffffffff),
+                                        padding: EdgeInsets.all(8.sp),
+                                        decoration: BoxDecoration(
+                                            // ignore: deprecated_member_use
+                                            color: Colors.grey.withOpacity(0.1),
+                                            shape: BoxShape.circle),
+                                        child: Image.asset(
+                                          'assets/images/icons8-alarm.png',
+                                          width: 18.sp,
+                                          height: 18.sp,
                                         ),
                                       ),
-                                      Text(
-                                        title,
-                                        style: TextStyle(
-                                          fontSize: 10.sp,
-                                          fontFamily: 'GrenadineMVB',
-                                          fontWeight: FontWeight.bold,
+                                      Container(
+                                        width: 0.76.sw,
+                                        // color: Color(0xffcccccc),
+                                        padding: EdgeInsets.only(left: 10.sp),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              tanggal,
+                                              style: TextStyle(
+                                                fontSize: 9.sp,
+                                              ),
+                                            ),
+                                            Text(
+                                              title,
+                                              style: TextStyle(
+                                                fontSize: 10.sp,
+                                                fontFamily: 'GrenadineMVB',
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            // Text(
+                                            //   '[ $status ]',
+                                            //   style: TextStyle(
+                                            //     fontSize: 9.sp,
+                                            //     color: Colors.blue[400],
+                                            //   ),
+                                            // ),
+                                          ],
                                         ),
-                                      ),
-                                      Text(
-                                        '[ $status ]',
-                                        style: TextStyle(
-                                          fontSize: 9.sp,
-                                          color: Colors.red,
-                                        ),
-                                      ),
+                                      )
                                     ],
                                   ),
-                                )
-                              ],
-                            ),
-                          );
-                        })
-                      ],
-                    ),
+                                );
+                              })
+                            ],
+                          )
+                        : Center(
+                            heightFactor: 2,
+                            child: Text('Tidak ada notifikasi.')),
                   )
                 ],
               ),
@@ -1070,6 +1126,7 @@ class _HomeState extends State<Home> {
                           fontFamily: 'GrenadineMVB',
                           fontSize: 10.sp,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -1179,6 +1236,7 @@ class _HomeState extends State<Home> {
                               fontFamily: 'GrenadineMVB',
                               fontSize: 9.sp,
                               fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -1228,6 +1286,7 @@ class _HomeState extends State<Home> {
                           fontFamily: 'GrenadineMVB',
                           fontSize: 10.sp,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -1236,89 +1295,135 @@ class _HomeState extends State<Home> {
                       padding: EdgeInsets.only(top: 10.sp),
                       child: Row(
                         children: [
-                          ...List.generate(jadwalTraining.length, (index) {
-                            Map<String, dynamic> itemJadwal =
-                                jadwalTraining[index];
-                            return Container(
-                              width: 0.5.sw,
-                              height: 100.sp,
-                              padding: EdgeInsets.all(10.sp),
-                              margin: EdgeInsets.only(right: 10.sp),
-                              decoration: BoxDecoration(
-                                // color: Color(0xfff2f2f2),
-                                border: Border.all(
-                                    color: Color(0xffcccccc), width: 0.7.sp),
-                                borderRadius: BorderRadius.circular(10.sp),
-                              ),
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 35.sp,
-                                    child: Text(
-                                      itemJadwal['title'],
-                                      style: TextStyle(
-                                        fontSize: 9.sp,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'GrenadineMVB',
+                          ...List.generate(pelatihan.length, (index) {
+                            Map<String, dynamic> itemPelatihan =
+                                pelatihan[index];
+                            String tanggalPelatihan =
+                                itemPelatihan['tanggal_awal'] +
+                                    ' s.d ' +
+                                    itemPelatihan['tanggal_awal'];
+                            return InkWell(
+                              onTap: () {
+                                popupPelatihan(context, itemPelatihan);
+                              },
+                              child: Container(
+                                width: 0.5.sw,
+                                height: 130.sp,
+                                padding: EdgeInsets.all(10.sp),
+                                margin: EdgeInsets.only(right: 10.sp),
+                                decoration: BoxDecoration(
+                                  // color: Color(0xfff2f2f2),
+                                  border: Border.all(
+                                      color: Color(0xffcccccc), width: 0.7.sp),
+                                  borderRadius: BorderRadius.circular(10.sp),
+                                ),
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      width: 0.5.sw,
+                                      height: 35.sp,
+                                      child: Text(
+                                        itemPelatihan['nama'],
+                                        style: TextStyle(
+                                          fontSize: 9.sp,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'GrenadineMVB',
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(right: 6.sp),
-                                        child: Image.asset(
-                                          'assets/images/icons8-neighbor.png',
-                                          width: 8.sp,
-                                          height: 8.sp,
+                                    Row(
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(right: 6.sp),
+                                          child: Image.asset(
+                                            'assets/images/icons8-bill.png',
+                                            width: 8.sp,
+                                            height: 8.sp,
+                                            color: Constants.primaryYellow,
+                                          ),
+                                        ),
+                                        Text(
+                                          itemPelatihan['kategori_pelatihan'],
+                                          style: TextStyle(
+                                            fontSize: 9.sp,
+                                            color: Colors.black,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(right: 6.sp),
+                                          child: Image.asset(
+                                            'assets/images/icons8-neighbor.png',
+                                            width: 8.sp,
+                                            height: 8.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Penyelenggara : ',
+                                          style: TextStyle(
+                                            fontSize: 9.sp,
+                                            color: Colors.black,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 0.5.sw,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 14.sp),
+                                        child: Text(
+                                          itemPelatihan['penyelenggara'],
+                                          style: TextStyle(
+                                            fontSize: 9.sp,
+                                            color: Colors.black,
+                                          ),
                                         ),
                                       ),
-                                      Text(
-                                        'Penyelenggara : ' +
-                                            itemJadwal['penyelenggara'],
-                                        style: TextStyle(
-                                          fontSize: 9.sp,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(right: 6.sp),
+                                          child: Image.asset(
+                                            'assets/images/icons8-tear-off_calendar.png',
+                                            width: 8.sp,
+                                            height: 8.sp,
+                                          ),
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(right: 6.sp),
-                                        child: Image.asset(
-                                          'assets/images/icons8-tear-off_calendar.png',
-                                          width: 8.sp,
-                                          height: 8.sp,
+                                        Text(
+                                          tanggalPelatihan,
+                                          style: TextStyle(
+                                            fontSize: 9.sp,
+                                            color: Colors.black,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(right: 6.sp),
+                                          child: Image.asset(
+                                            'assets/images/icons8-location.png',
+                                            width: 8.sp,
+                                            height: 8.sp,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        itemJadwal['tanggal'],
-                                        style: TextStyle(
-                                          fontSize: 9.sp,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(right: 6.sp),
-                                        child: Image.asset(
-                                          'assets/images/icons8-location.png',
-                                          width: 8.sp,
-                                          height: 8.sp,
-                                        ),
-                                      ),
-                                      Text(
-                                        itemJadwal['lokasi'],
-                                        style: TextStyle(
-                                          fontSize: 9.sp,
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
+                                        Text(
+                                          itemPelatihan['lokasi'],
+                                          style: TextStyle(
+                                            fontSize: 9.sp,
+                                            color: Colors.black,
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
                             );
                           })
@@ -1329,7 +1434,11 @@ class _HomeState extends State<Home> {
                       width: 0.91.sw,
                       alignment: Alignment.centerRight,
                       padding: EdgeInsets.only(top: 10.sp),
-                      child: UnconstrainedBox(
+                      child: Button(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/jadwal_pelatihan');
+                        },
+                        padding: EdgeInsets.all(0),
                         child: Container(
                           padding: EdgeInsets.only(
                               top: 6.sp,
@@ -1348,6 +1457,7 @@ class _HomeState extends State<Home> {
                               fontFamily: 'GrenadineMVB',
                               fontSize: 9.sp,
                               fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
                         ),
