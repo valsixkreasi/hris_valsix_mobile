@@ -15,7 +15,7 @@ class MainMenuHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 0.275.sw,
-      // color: Colors.white,
+      // color: Colors.amber,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),

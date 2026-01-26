@@ -15,7 +15,7 @@ import 'package:hris/screens/viewpdf.dart';
 
 import 'package:hris/screens/notifikasi.dart';
 import 'package:hris/screens/jadwal_pelatihan.dart';
-
+// profil
 import 'package:hris/screens/profil/identitas.dart';
 import 'package:hris/screens/profil/pribadi.dart';
 import 'package:hris/screens/profil/keluarga.dart';
@@ -41,14 +41,29 @@ import 'package:hris/screens/profil/emergency.dart';
 import 'package:hris/screens/profil/tanggal_acuan.dart';
 import 'package:hris/screens/profil/pkwt.dart';
 import 'package:hris/screens/profil/log_pengajuan.dart';
-
+// cuti
 import 'package:hris/screens/cuti/monitoring.dart';
 import 'package:hris/screens/cuti/add.dart';
 import 'package:hris/screens/cuti/view.dart';
+// izin
+import 'package:hris/screens/izin/monitoring.dart';
+import 'package:hris/screens/izin/add.dart';
+import 'package:hris/screens/izin/view.dart';
+// reimburse
+import 'package:hris/screens/reimburse/monitoring.dart';
+import 'package:hris/screens/reimburse/add.dart';
+import 'package:hris/screens/reimburse/view.dart';
+// persetujuan
+import 'package:hris/screens/persetujuan/monitoring.dart';
+// presensi
+import 'package:hris/screens/presensi/presensi_map.dart';
+import 'package:hris/screens/presensi/presensi_log.dart';
+import 'package:hris/screens/presensi/presensi_log_detil.dart';
+import 'package:hris/screens/presensi/presensi_log_bawahan.dart';
 
 void main() async {
-  configLoading();
   WidgetsFlutterBinding.ensureInitialized();
+  configLoading();
 
   // Plugin must be initialized before using
   await FlutterDownloader.initialize(
@@ -156,8 +171,27 @@ class _MyApp extends State<MyApp> {
                 '/pkwt': (context) => const Pkwt(),
                 '/log_pengajuan': (context) => const LogPengajuan(),
                 '/pengajuan_cuti': (context) => const PengajuanCuti(),
-                '/pengajuan_cuti_add': (context) => PengajuanCutiAdd(),
-                '/pengajuan_cuti_view': (context) => PengajuanCutiView(),
+                '/pengajuan_cuti_add': (context) =>
+                    PengajuanCutiAdd(arguments: settings.arguments),
+                '/pengajuan_cuti_view': (context) =>
+                    PengajuanCutiView(arguments: settings.arguments),
+                '/pengajuan_izin': (context) => const PengajuanIzin(),
+                '/pengajuan_izin_add': (context) =>
+                    PengajuanIzinAdd(arguments: settings.arguments),
+                '/pengajuan_izin_view': (context) =>
+                    PengajuanIzinView(arguments: settings.arguments),
+                '/pengajuan_reimburse': (context) => const PengajuanReimburse(),
+                '/pengajuan_reimburse_add': (context) =>
+                    PengajuanReimburseAdd(arguments: settings.arguments),
+                '/pengajuan_reimburse_view': (context) =>
+                    PengajuanReimburseView(arguments: settings.arguments),
+                '/persetujuan': (context) => const Persetujuan(),
+                '/presensi': (context) => const PresensiMap(),
+                '/presensi_log': (context) => const PresensiLog(),
+                '/presensi_log_detil': (context) =>
+                    PresensiLogDetil(arguments: settings.arguments),
+                '/presensi_log_bawahan': (context) =>
+                    const PresensiLogBawahan(),
               };
 
               WidgetBuilder? builder = routes[settings.name];

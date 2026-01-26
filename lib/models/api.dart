@@ -39,6 +39,20 @@ class ApiModel {
     return jsonDecode(response);
   }
 
+  Future getByUrl() async {
+    String uriParam = '';
+    _param.forEach((key, value) {
+      if (uriParam == '') {
+        uriParam += '$key=$value';
+      } else {
+        uriParam += '&$key=$value';
+      }
+    });
+
+    var response = await Constants.getByUrl(_url + uriParam);
+    return jsonDecode(response);
+  }
+
   Future getCombo() async {
     // Map<String, String> _body = {};
     // print(_body);
@@ -52,7 +66,7 @@ class ApiModel {
   Future postJson() async {
     Map<String, String> _body = {};
     var response = await Constants.postJson(_url, _body);
-    // print(response);
+    print(response);
     return jsonDecode(response);
   }
 

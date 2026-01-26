@@ -81,7 +81,7 @@ class HomeModel extends ChangeNotifier {
     Map<String, String> _body = {};
 
     var response = await Constants.postJson('home', _body);
-
+    // print(response);
     Map<String, dynamic> result = jsonDecode(response);
     if (result['status'] == 'success') {
       setData(result);

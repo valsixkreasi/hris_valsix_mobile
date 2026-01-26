@@ -11,14 +11,14 @@ import 'package:hris/components/statusview.dart';
 import 'package:hris/configs/constants.dart';
 import 'package:hris/models/api.dart';
 
-class PengajuanCuti extends StatefulWidget {
-  const PengajuanCuti({super.key});
+class PengajuanReimburse extends StatefulWidget {
+  const PengajuanReimburse({super.key});
 
   @override
-  State<PengajuanCuti> createState() => _PengajuanCutiState();
+  State<PengajuanReimburse> createState() => _PengajuanReimburseState();
 }
 
-class _PengajuanCutiState extends State<PengajuanCuti> {
+class _PengajuanReimburseState extends State<PengajuanReimburse> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
@@ -29,13 +29,12 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
   @override
   void initState() {
     EasyLoading.show(status: 'Loading...', maskType: EasyLoadingMaskType.black);
-
     getData();
     super.initState();
   }
 
   void getData() async {
-    ApiModel model = ApiModel('pengajuan-cuti');
+    ApiModel model = ApiModel('pengajuan-reimburse');
     model.get().then((value) async {
       setState(() {
         data = value;
@@ -47,11 +46,11 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
   void _navigateToPage(String id) async {
     final result;
     if (id == '') {
-      result = await Navigator.pushNamed(context, '/pengajuan_cuti_add');
+      result = await Navigator.pushNamed(context, '/pengajuan_reimburse_add');
     } else {
       result = await Navigator.pushNamed(
         context,
-        '/pengajuan_cuti_add',
+        '/pengajuan_reimburse_add',
         arguments: {
           'id': id,
         },
@@ -104,7 +103,7 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                 ),
                 Expanded(
                   child: Text(
-                    'Pengajuan Cuti',
+                    'Permohonan Reimburse',
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -152,9 +151,9 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                               onPressed: () {
                                 Navigator.pushNamed(
                                   context,
-                                  '/pengajuan_cuti_view',
+                                  '/pengajuan_reimburse_view',
                                   arguments: {
-                                    'id': dataItem['permohonan_cuti_id'],
+                                    'id': dataItem['permohonan_reimburse_id'],
                                   },
                                 );
                               },
@@ -196,7 +195,7 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                                               Expanded(
                                                 flex: 9,
                                                 child: Text(
-                                                  '${dataItem['tanggal_awal'] ?? '-'} s/d ${dataItem['tanggal_akhir'] ?? '-'}',
+                                                  'Tanggal : ${dataItem['tanggal'] ?? '-'}',
                                                   style: TextStyle(
                                                     fontFamily: 'GrenadineMVB',
                                                     fontWeight:
@@ -212,7 +211,7 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                                                     ? InkResponse(
                                                         onTap: () {
                                                           _navigateToPage(dataItem[
-                                                              'permohonan_cuti_id']);
+                                                              'permohonan_reimburse_id']);
                                                         },
                                                         child: Icon(
                                                           Icons.edit_square,
@@ -236,41 +235,23 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(height: 1.sp),
-                                          Row(
-                                            spacing: 10.sp,
-                                            children: [
-                                              Expanded(
-                                                flex: 5,
-                                                child: InputView(
-                                                    label:
-                                                        'Tanggal Pengajuan :',
-                                                    value:
-                                                        dataItem['tanggal'] ??
-                                                            '-'),
-                                              ),
-                                              Expanded(
-                                                flex: 5,
-                                                child: InputView(
-                                                    label: 'Jumlah Hari :',
-                                                    value:
-                                                        '${dataItem['jumlah_hari'] ?? '-'}'),
-                                              ),
-                                            ],
-                                          ),
                                           InputView(
-                                              label: 'Alasan :',
-                                              value: dataItem['keterangan'] ??
+                                              label: 'Nama Pasien :',
+                                              value:
+                                                  dataItem['pegawai'] ?? '-'),
+                                          InputView(
+                                              label: 'Status Keluarga :',
+                                              value:
+                                                  dataItem['status_keluarga'] ??
+                                                      '-'),
+                                          InputView(
+                                              label: 'Jenis Pemeriksaan :',
+                                              value: dataItem['jenis_faskes'] ??
                                                   '-'),
                                           InputView(
-                                              label: 'Approval I :',
-                                              value: dataItem[
-                                                      'pegawai_approval1'] ??
-                                                  '-'),
-                                          InputView(
-                                              label: 'Approval II :',
-                                              value: dataItem[
-                                                      'pegawai_approval2'] ??
-                                                  '-'),
+                                              label: 'Kondisi :',
+                                              value:
+                                                  dataItem['kondisi'] ?? '-'),
                                           Statusview(
                                             label:
                                                 dataItem['status_desc'] ?? '-',

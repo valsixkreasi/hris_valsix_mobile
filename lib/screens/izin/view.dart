@@ -11,15 +11,15 @@ import 'package:hris/components/textinput.dart';
 import 'package:hris/configs/constants.dart';
 import 'package:hris/models/api.dart';
 
-class PengajuanCutiView extends StatefulWidget {
+class PengajuanIzinView extends StatefulWidget {
   final Object? arguments;
-  const PengajuanCutiView({super.key, this.arguments});
+  const PengajuanIzinView({super.key, this.arguments});
 
   @override
-  State<PengajuanCutiView> createState() => _PengajuanCutiViewState();
+  State<PengajuanIzinView> createState() => _PengajuanIzinViewState();
 }
 
-class _PengajuanCutiViewState extends State<PengajuanCutiView> {
+class _PengajuanIzinViewState extends State<PengajuanIzinView> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
@@ -41,7 +41,7 @@ class _PengajuanCutiViewState extends State<PengajuanCutiView> {
   }
 
   void getData(String id) async {
-    ApiModel model = ApiModel('pengajuan-cuti/${id}');
+    ApiModel model = ApiModel('pengajuan-izin/${id}');
     model.get().then((value) async {
       if (value['status'] == 'APPROVE') {
         status_color = Constants.approve;
@@ -86,7 +86,7 @@ class _PengajuanCutiViewState extends State<PengajuanCutiView> {
                 ),
                 Expanded(
                   child: Text(
-                    'Detil Pengajuan Cuti',
+                    'Detil Pengajuan Izin',
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -116,6 +116,9 @@ class _PengajuanCutiViewState extends State<PengajuanCutiView> {
                     spacing: 4,
                     children: [
                       InputView(
+                          label: 'Jenis Izin :',
+                          value: data['ketidakhadiran_jenis'] ?? '-'),
+                      InputView(
                           label: 'No. Pengajuan :',
                           value: data['nomor'] ?? '-'),
                       Row(
@@ -139,13 +142,37 @@ class _PengajuanCutiViewState extends State<PengajuanCutiView> {
                           label: 'Lama Cuti :',
                           value: '${data['jumlah_hari'] ?? '-'}'),
                       InputView(
+                          label: 'Alasan :', value: data['keterangan'] ?? '-'),
+                      InputView(
                           label: 'Alamat :', value: data['alamat'] ?? '-'),
-                      InputView(
-                          label: 'Alasan Cuti :',
-                          value: data['keterangan'] ?? '-'),
-                      InputView(
-                          label: 'Pengganti selama cuti :',
-                          value: data['keterangan_pengganti'] ?? '-'),
+                      SizedBox(height: 10.sp),
+                      Container(
+                        child: data['lampiran'] != ''
+                            ? InkWell(
+                                onTap: () {
+                                  // Constants.launchUrl(pathFile);
+                                  Navigator.pushNamed(context, '/viewpdf',
+                                      arguments: {
+                                        'url': Constants.baseWebUrl +
+                                            data['lampiran'],
+                                        'title': 'Dokumen',
+                                        'btn_download': false,
+                                      });
+                                },
+                                child: Text(
+                                  'Lihat Lampiran',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontFamily: 'GrenadineMVB',
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 10.sp,
+                                    color: const Color(0xff3174c7),
+                                  ),
+                                ),
+                              )
+                            : SizedBox(),
+                      ),
+                      SizedBox(height: 10.sp),
                       InputView(
                           label: 'Approval I :',
                           value: data['pegawai_approval1'] ?? '-'),

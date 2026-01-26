@@ -21,7 +21,6 @@ import 'package:hris/components/rflutter_alert/src/constants.dart';
 import 'package:hris/components/rflutter_alert/src/dialog_button.dart';
 import 'package:hris/components/textinput.dart';
 import 'package:hris/configs/constants.dart';
-import 'package:hris/models/api.dart';
 import 'package:hris/models/home.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,29 +36,14 @@ class _HomeState extends State<Home> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
 
-  String jamMasuk = '';
-  String jamPulang = '';
-  Map<String, dynamic> logHariIni = {};
   String password = '';
   String passwordUlang = '';
 
   @override
   void initState() {
     EasyLoading.show(status: 'Loading...', maskType: EasyLoadingMaskType.black);
-    getDataLokasi();
-    super.initState();
-  }
 
-  void getDataLokasi() async {
-    ApiModel model = ApiModel('lokasi_kerja_json');
-    model.get().then((value) async {
-      Map<String, dynamic> hariini = value['log_hari_ini'] ?? {};
-      setState(() {
-        jamMasuk = value['jam_masuk'];
-        jamPulang = value['jam_pulang'];
-        logHariIni = hariini;
-      });
-    });
+    super.initState();
   }
 
   Future<void> ubahPasswordbak(BuildContext context) {
@@ -173,6 +157,14 @@ class _HomeState extends State<Home> {
       ),
       buttons: [
         DialogButton(
+          child: Text(
+            'Submit',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 11.sp,
+                fontFamily: 'GrenadineMVB',
+                fontWeight: FontWeight.w800),
+          ),
           onPressed: () {
             Navigator.pop(context);
             Future.delayed(const Duration(milliseconds: 100), () {
@@ -183,21 +175,8 @@ class _HomeState extends State<Home> {
           },
           width: 120,
           color: Constants.primaryBlue,
-          child: Text(
-            'Submit',
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 11.sp,
-                fontFamily: 'GrenadineMVB',
-                fontWeight: FontWeight.w800),
-          ),
         ),
         DialogButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          width: 120,
-          color: Constants.primaryYellow,
           child: Text(
             'Batal',
             style: TextStyle(
@@ -206,6 +185,11 @@ class _HomeState extends State<Home> {
                 fontFamily: 'GrenadineMVB',
                 fontWeight: FontWeight.w800),
           ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          width: 120,
+          color: Constants.primaryYellow,
         ),
       ],
     ).show();
@@ -312,8 +296,8 @@ class _HomeState extends State<Home> {
   }
 
   void logout(BuildContext context) {
-    SharedPreferences.getInstance().then((prefs) async {
-      await prefs.clear();
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.clear();
       Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
     });
   }
@@ -399,19 +383,24 @@ class _HomeState extends State<Home> {
 
     List<Map<String, dynamic>> menu = [
       {
-        'title': 'Rekrutmen',
-        'icon': 'assets/images/icons8-open_book.png',
-        'route': ''
-      },
-      {
-        'title': 'Usulan Pelatihan',
-        'icon': 'assets/images/icons8-tear-off_calendar.png',
+        'title': 'Pengajuan Cuti',
+        'icon': 'assets/images/icons8-working_with_papers.png',
         'route': ''
       },
       {
         'title': 'Data Presensi',
         'icon': 'assets/images/icons8-fingerprint.png',
-        'route': '/presensi_log'
+        'route': ''
+      },
+      {
+        'title': 'Aturan Perusahaan',
+        'icon': 'assets/images/icons8-open_book.png',
+        'route': ''
+      },
+      {
+        'title': 'Kalendar Perusahaan',
+        'icon': 'assets/images/icons8-tear-off_calendar.png',
+        'route': ''
       },
       {
         'title': 'Slip Gaji',
@@ -419,35 +408,14 @@ class _HomeState extends State<Home> {
         'route': ''
       },
       {
-        'title': 'Pengajuan Cuti',
-        'icon': 'assets/images/icons8-working_with_papers.png',
-        'route': '/pengajuan_cuti'
-      },
-      {
-        'title': 'Pengajuan Izin',
-        'icon': 'assets/images/icons8-working_with_papers.png',
-        'route': '/pengajuan_izin'
-      },
-      {
         'title': 'Reimburse',
         'icon': 'assets/images/icons8-refund.png',
-        'route': '/pengajuan_reimburse'
-      },
-      {
-        'title': 'Persetujuan',
-        'icon': 'assets/images/icons8-gavel.png',
-        'route': '/persetujuan'
-      },
-      {
-        'title': 'Presensi',
-        'icon': 'assets/images/icons8-fingerprint.png',
-        'route': '/presensi'
+        'route': ''
       },
     ];
 
     return RefreshIndicator(
         onRefresh: () async {
-          getDataLokasi();
           homeData.fetch().then((value) {
             EasyLoading.show(
                 status: 'Loading...', maskType: EasyLoadingMaskType.black);
@@ -466,11 +434,62 @@ class _HomeState extends State<Home> {
                 Container(
                   margin: EdgeInsets.only(right: 6.sp),
                   child: Image.asset(
-                    'assets/images/logo_harmonis.png',
-                    width: 0.5.sw,
-                    height: 0.14.sw,
+                    'assets/images/logo_ptpn1.png',
+                    width: 40.sp,
+                    height: 40.sp,
                   ),
                 ),
+                SizedBox(
+                  // margin: EdgeInsets.only(right: 10.sp),
+                  // color: Colors.amber,
+                  width: 0.68.sw,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'HRIS  ',
+                        // textAlign: TextAlign.start,
+                        // overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'GrenadineMVB',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16.sp,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        'Application',
+                        style: TextStyle(
+                          fontFamily: 'GrenadineMVB',
+                          fontSize: 11.sp,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // SizedBox(
+                //   width: 0.1.sw,
+                //   // padding: EdgeInsets.all(6.sp),
+                //   // color: Colors.grey,
+                //   child: Container(
+                //     width: 30.sp,
+                //     height: 30.sp,
+                //     padding: EdgeInsets.all(10.sp),
+                //     // color: Colors.green,
+                //     decoration: BoxDecoration(
+                //       shape: BoxShape.circle,
+                //       color: Color(0xffececec),
+                //     ),
+                //     child: Image.asset(
+                //       'assets/images/icons8-menu.png',
+                //       // width: 10.sp,
+                //       // height: 10.sp,
+                //       color: Colors.black,
+                //     ),
+                //   ),
+                // ),
                 Expanded(
                   child: Container(
                     // color: Colors.amber,
@@ -504,7 +523,7 @@ class _HomeState extends State<Home> {
             // AREA INFORMASI PROFIL
             Container(
               width: 1.sw,
-              height: 0.69.sh,
+              height: 0.63.sh,
               padding: EdgeInsets.only(left: 15.sp, right: 15.sp),
               child: Stack(
                 children: [
@@ -515,7 +534,7 @@ class _HomeState extends State<Home> {
                     // height: 0.22.sh,
                     child: Container(
                       width: 0.92.sw,
-                      height: 0.25.sh,
+                      height: 0.19.sh,
                       // color: Color(0xffcccccc),
                       decoration: const BoxDecoration(
                         image: DecorationImage(
@@ -532,7 +551,7 @@ class _HomeState extends State<Home> {
                     child: Container(
                       width: 0.92.sw,
                       // color: Colors.grey,
-                      padding: EdgeInsets.all(10),
+                      padding: EdgeInsets.all(12),
                       child: Wrap(
                         spacing: 6.sp,
                         runSpacing: 6.sp,
@@ -798,12 +817,12 @@ class _HomeState extends State<Home> {
                         Text(
                           'Jadwal masuk hari ini :',
                           style: TextStyle(
-                              fontSize: 9.sp,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
+                            fontSize: 9.sp,
+                            color: Colors.white,
+                          ),
                         ),
                         Text(
-                          'Datang : $jamMasuk',
+                          'Datang : ${presensi['jadwal_masuk']}',
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.bold,
@@ -811,7 +830,7 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         Text(
-                          'Pulang : $jamPulang',
+                          'Pulang : ${presensi['jadwal_pulang']}',
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.bold,
@@ -847,7 +866,7 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         Text(
-                          logHariIni['jam_masuk'] ?? '--:--',
+                          presensi['absensi_masuk'],
                           style: TextStyle(
                             fontFamily: 'GrenadineMVB',
                             fontSize: 12.sp,
@@ -884,7 +903,7 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         Text(
-                          logHariIni['jam_pulang'] ?? '--:--',
+                          presensi['absensi_pulang'],
                           style: TextStyle(
                             fontFamily: 'GrenadineMVB',
                             fontSize: 12.sp,
@@ -988,7 +1007,7 @@ class _HomeState extends State<Home> {
                     child: notifikasi.length > 0
                         ? Column(
                             children: [
-                              ...List.generate(notifikasi.length > 0 ? 1 : 0,
+                              ...List.generate(notifikasi.length > 0 ? 2 : 0,
                                   (index) {
                                 Map<String, dynamic> itemNotifikasi =
                                     notifikasi[index];

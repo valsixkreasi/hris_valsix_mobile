@@ -111,14 +111,14 @@ class _TextInput extends State<TextInput> {
     return TextFormField(
       controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      // validator: (value) {
-      //   if (widget.required) {
-      //     if (value == null || value.isEmpty) {
-      //       return 'harus diisi';
-      //     }
-      //   }
-      //   return null;
-      // },
+      validator: (value) {
+        if (widget.required) {
+          if (value == null || value.isEmpty) {
+            return 'harus diisi';
+          }
+        }
+        return null;
+      },
       onChanged: widget.onchanged,
       onTap: widget.ontap,
       readOnly: widget.readOnly,

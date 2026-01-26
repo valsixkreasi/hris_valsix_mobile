@@ -2,17 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hris/components/button.dart';
 import 'package:hris/components/buttonicon.dart';
 import 'package:hris/components/datepicker.dart';
+import 'package:hris/components/filepicker.dart';
 import 'package:hris/components/flutter_screenutil/flutter_screenutil.dart';
 import 'package:hris/components/inputview.dart';
 import 'package:hris/components/navheader.dart';
 import 'package:hris/components/rflutter_alert/src/alert.dart';
 import 'package:hris/components/rflutter_alert/src/constants.dart';
 import 'package:hris/components/rflutter_alert/src/dialog_button.dart';
+import 'package:hris/components/select.dart';
 import 'package:hris/components/statusview.dart';
 import 'package:hris/components/subtitleview.dart';
 import 'package:hris/components/textinput.dart';
@@ -20,23 +23,24 @@ import 'package:hris/configs/constants.dart';
 import 'package:hris/models/api.dart';
 import 'package:intl/intl.dart';
 
-class PengajuanCutiAdd extends StatefulWidget {
+class PengajuanIzinAdd extends StatefulWidget {
   final Object? arguments;
-  const PengajuanCutiAdd({super.key, this.arguments});
+  const PengajuanIzinAdd({super.key, this.arguments});
 
   @override
-  State<PengajuanCutiAdd> createState() => _PengajuanCutiAddState();
+  State<PengajuanIzinAdd> createState() => _PengajuanIzinAddState();
 }
 
-class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
+class _PengajuanIzinAddState extends State<PengajuanIzinAdd> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
   final _formKey = GlobalKey<FormState>();
 
-  bool loading = true;
-  Map<String, dynamic> infoCutiTahun = {};
-  Map<String, dynamic> infoCutiPanjang = {};
+  List<Map<String, dynamic>> dataJenisIzin = [];
+  Map<String, dynamic> infoJenisIzin = {};
+  List<Map<String, dynamic>> dataLamaIzin = [];
+  DateTime? firstdate;
   int sisa_cuti = 0;
   String searchApproval = '';
   List<Map<String, dynamic>> dataApproval = [];
@@ -45,13 +49,19 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
   int maksimal_cuti = 0;
 
   String reqId = '';
+  Map<String, dynamic> jenisIzin = {'id': '', 'text': ''};
   String noPengajuan = '';
   DateTime? tglAwal;
   DateTime? tglAkhir;
-  String lama = '';
-  String alamat = '';
+  Map<String, dynamic> lamaIzin = {'id': '', 'text': ''};
+  // String lama = '';
   String alasan = '';
-  String pengganti = '';
+  String alamat = '';
+  FilePickerResult? dokumen;
+  String pathFile = '';
+  String mingguke = '';
+  String bulan = '';
+  String tahun = '';
   Map<String, dynamic> approval1 = {
     'PEGAWAI_ID': '',
     'NIK': '',
@@ -65,12 +75,11 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
     'JABATAN': ''
   };
   String approvalSelected = '';
-  String status_tanggal_berlaku = '';
 
   @override
   void initState() {
     EasyLoading.show(status: 'Loading...', maskType: EasyLoadingMaskType.black);
-    getDataInfo();
+    getJenis();
     var arg = widget.arguments as Map<String, dynamic>?;
     if (arg != null) {
       getData(arg['id']);
@@ -78,38 +87,135 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
     super.initState();
   }
 
-  void getDataInfo() async {
-    ApiModel model = ApiModel('pengajuan-cuti-info');
+  void getJenis() async {
+    ApiModel model = ApiModel('combo-jenis-izin');
     model.get().then((value) async {
+      // print(value);
+      List<dynamic> res = value;
+      List<Map<String, dynamic>> result =
+          res.map((e) => e as Map<String, dynamic>).toList();
       setState(() {
-        loading = false;
-        infoCutiTahun = value['info_cuti_tahunan'] ?? {};
-        infoCutiPanjang = value['info_cuti_panjang'] ?? {};
-        sisa_cuti = value['info_sisa_cuti_total'] ?? 0;
+        dataJenisIzin = result;
+      });
+      EasyLoading.dismiss();
+    });
+  }
+
+  void getJenisInfo(int? id) async {
+    EasyLoading.show(status: 'Loading...', maskType: EasyLoadingMaskType.black);
+    ApiModel model = ApiModel('combo-jenis-izin-info/${id}');
+    model.get().then((value) async {
+      // print(value);
+      getMaxBackdate(value['SATUAN_PERIODE_PENGAJUAN'],
+          value['MAX_TGL_PENGAJUAN_BACKDATE']);
+      if (value['JENIS_HARI'] == 'BULAN') {
+        getComboLama(value['JLM_MAX_HARI']);
+      }
+      setState(() {
+        infoJenisIzin = value;
+      });
+      EasyLoading.dismiss();
+    });
+  }
+
+  void getMaxBackdate(String satuan, int max) async {
+    Map<String, String> _body = {
+      'SATUAN_PERIODE_PENGAJUAN': satuan,
+      'MAX_TGL_PENGAJUAN_BACKDATE': '${max}'
+    };
+    // print(_body);
+    var response = await Constants.postJson('pengajuan-izin-backdate', _body);
+    var result = jsonDecode(response);
+    // print(result);
+    setState(() {
+      firstdate = DateTime(
+          result['TAHUN_PARAM'], result['BULAN_PARAM'], result['HARI_PARAM']);
+    });
+  }
+
+  void hitungLamaIzin() async {
+    Map<String, String> _body = {
+      'TANGGAL_AWAL':
+          tglAwal == null ? '' : DateFormat('dd-MM-yyyy').format(tglAwal!),
+      'TANGGAL_AKHIR':
+          tglAkhir == null ? '' : DateFormat('dd-MM-yyyy').format(tglAkhir!),
+      'JUMLAH_HARI': '${lamaIzin['id']}',
+      'KETIDAKHADIRAN_ID': '',
+      'KETIDAKHADIRAN_JENIS_ID': '${jenisIzin['id']}'
+    };
+    print(_body);
+    var response = await Constants.postJson('pengajuan-izin-info', _body);
+    var result = jsonDecode(response);
+    print(result);
+    if (result['status'] == 'success') {
+      if (infoJenisIzin['JENIS_HARI'] == 'BULAN') {
+        setState(() {
+          tglAkhir =
+              DateFormat('yyyy-MM-dd').parse(result['TANGGAL_AKHIR'] ?? '');
+          mingguke = result['MINGGU_KE'].toString();
+          bulan = result['BULAN'];
+          tahun = result['TAHUN'];
+        });
+      } else {
+        setState(() {
+          lamaIzin = {
+            'id': result['JUMLAH_HARI'],
+            'text': result['JUMLAH_HARI']
+          };
+          mingguke = result['MINGGU_KE'].toString();
+          bulan = result['BULAN'];
+          tahun = result['TAHUN'];
+        });
+      }
+    } else {
+      setState(() {
+        tglAkhir = null;
+        lamaIzin = {'id': '', 'text': ''};
+      });
+      EasyLoading.showToast(
+        result['message'] ?? '',
+        duration: const Duration(seconds: 3),
+      );
+    }
+  }
+
+  void getComboLama(int id) async {
+    EasyLoading.show(status: 'Loading...', maskType: EasyLoadingMaskType.black);
+    ApiModel model = ApiModel('combo-lama-izin/${id}');
+    model.get().then((value) async {
+      // print(value);
+      List<dynamic> res = value;
+      List<Map<String, dynamic>> result =
+          res.map((e) => e as Map<String, dynamic>).toList();
+      setState(() {
+        dataLamaIzin = result;
       });
       EasyLoading.dismiss();
     });
   }
 
   void getData(String id) async {
-    ApiModel model = ApiModel('pengajuan-cuti/${id}');
+    ApiModel model = ApiModel('pengajuan-izin/${id}');
     model.get().then((value) async {
       setState(() {
-        loading = false;
-        reqId = value['permohonan_cuti_id'];
+        reqId = value['ketidakhadiran_id'];
+        jenisIzin = {
+          'id': value['ketidakhadiran_jenis_id'],
+          'text': value['ketidakhadiran_jenis']
+        };
         noPengajuan = value['nomor'];
-        tglAwal = value['status_tanggal_berlaku'] == 'T'
-            ? null
-            : DateFormat('yyyy-MM-dd').parse(value['tanggal_awal'] ?? '');
-        tglAkhir = value['status_tanggal_berlaku'] == 'T'
-            ? null
-            : DateFormat('yyyy-MM-dd').parse(value['tanggal_akhir'] ?? '');
-        lama = value['status_tanggal_berlaku'] == 'T'
-            ? ''
-            : value['jumlah_hari'].toString();
-        alamat = value['alamat'];
+        tglAwal = DateFormat('yyyy-MM-dd').parse(value['tanggal_awal'] ?? '');
+        tglAkhir = DateFormat('yyyy-MM-dd').parse(value['tanggal_akhir'] ?? '');
+        lamaIzin = {
+          'id': '${value['jumlah_hari']}',
+          'text': '${value['jumlah_hari']}'
+        };
         alasan = value['keterangan'];
-        pengganti = value['keterangan_pengganti'];
+        alamat = value['alamat'];
+        pathFile = value['lampiran'];
+        mingguke = value['minggu_ke'];
+        bulan = value['bulan'];
+        tahun = value['tahun'];
         approval1 = {
           'PEGAWAI_ID': value['pegawai_id_approval1'],
           'NIK': value['pegawai_nik_approval1'],
@@ -122,67 +228,9 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
           'NAMA': value['pegawai_approval2'],
           'JABATAN': value['jabatan_approval2']
         };
-        status_tanggal_berlaku = value['status_tanggal_berlaku'];
       });
-      EasyLoading.dismiss();
-    });
-  }
-
-  void hitungCuti() async {
-    Map<String, String> _body = {
-      'AWAL': tglAwal == null ? '' : DateFormat('dd-MM-yyyy').format(tglAwal!),
-      'AKHIR':
-          tglAkhir == null ? '' : DateFormat('dd-MM-yyyy').format(tglAkhir!)
-    };
-    var response = await Constants.postJson('pengajuan-hitung-hari', _body);
-    var result = jsonDecode(response);
-    print(result);
-
-    if (result['selisih'] > result['maksimal']) {
-      setState(() {
-        tglAkhir = null;
-        lama = '';
-      });
-      return EasyLoading.showToast(
-        'Maksimal cuti yang dapat Anda ambil adalah ${result['maksimal']} hari.',
-        duration: const Duration(seconds: 3),
-      );
-    }
-    if (result['selisih'] > sisa_cuti) {
-      setState(() {
-        tglAkhir = null;
-        lama = '';
-      });
-      return EasyLoading.showToast(
-        'Sisa cuti tidak mencukupi.',
-        duration: const Duration(seconds: 3),
-      );
-    }
-    if (result['selisih'] >= 0) {
-    } else {
-      setState(() {
-        tglAkhir = null;
-        lama = '';
-      });
-      return EasyLoading.showToast(
-        'Tanggal akhir > Tanggal mulai.',
-        duration: const Duration(seconds: 3),
-      );
-    }
-    if (result['selisih'] == 0) {
-      setState(() {
-        tglAkhir = null;
-        lama = '';
-      });
-      return EasyLoading.showToast(
-        'Anda tidak diperbolehkan cuti pada hari libur.',
-        duration: const Duration(seconds: 3),
-      );
-    }
-    setState(() {
-      total_hari = result['selisih'];
-      maksimal_cuti = result['maksimal'];
-      lama = result['selisih'].toString();
+      getJenisInfo(int.tryParse(value['ketidakhadiran_jenis_id']));
+      // EasyLoading.dismiss();
     });
   }
 
@@ -250,7 +298,11 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
           ),
           onPressed: () {
             Navigator.pop(context);
-            submit(status);
+            if (dokumen != null) {
+              uploadFile(status);
+            } else {
+              submit(status);
+            }
           },
           width: 120,
         ),
@@ -258,26 +310,71 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
     ).show();
   }
 
+  Future<void> uploadFile(String status) async {
+    EasyLoading.show(status: 'Prosess Upload...');
+    Map<String, String> body = {
+      'reqJenisDokumen': 'permohonan',
+    };
+    Map<String, String> files = {};
+    if (dokumen != null) {
+      if (dokumen!.files.isNotEmpty) {
+        Map<String, String> file = {
+          "reqLinkFile": dokumen!.files[0].path ?? ''
+        };
+        files.addAll(file);
+      }
+    }
+    print(body);
+    print(dokumen);
+
+    var response = await Constants.postFile(
+      'pengajuan-unggah-dokumen',
+      body,
+      files: files,
+    );
+    Map<String, dynamic> responseJson =
+        jsonDecode(response) as Map<String, dynamic>;
+
+    print(responseJson);
+
+    if (responseJson['status'] == 'success') {
+      setState(() {
+        pathFile = responseJson['file'];
+      });
+      submit(status);
+    } else {
+      EasyLoading.showToast(
+        responseJson['message'] ?? '',
+        duration: const Duration(seconds: 1),
+      );
+    }
+  }
+
   Future<void> submit(String status) async {
     EasyLoading.show(status: 'Prosess simpan...');
     Map<String, String> body = {
       'reqId': reqId,
+      'KETIDAKHADIRAN_JENIS_ID': jenisIzin['id'].toString(),
       'NOMOR': noPengajuan,
       'TANGGAL_AWAL':
           tglAwal == null ? '' : DateFormat('dd-MM-yyyy').format(tglAwal!),
       'TANGGAL_AKHIR':
           tglAkhir == null ? '' : DateFormat('dd-MM-yyyy').format(tglAkhir!),
-      'JUMLAH_HARI': lama,
+      'JUMLAH_HARI': lamaIzin['id'].toString(),
       'ALAMAT': alamat,
       'KETERANGAN': alasan,
-      'KETERANGAN_PENGGANTI': pengganti,
+      'TELEPON': '',
+      'PERMOHONAN_DOKUMEN': pathFile,
+      "MINGGU_KE": mingguke.toString(),
+      "BULAN": bulan,
+      "TAHUN": tahun,
       'PEGAWAI_ID_APPROVAL1': approval1['PEGAWAI_ID'],
       'PEGAWAI_ID_APPROVAL2': approval2['PEGAWAI_ID'],
       'STATUS': status
     };
     print(body);
     // return;
-    var response = await Constants.postJson('pengajuan-cuti-add', body);
+    var response = await Constants.postJson('pengajuan-izin-add', body);
     Map<String, dynamic> responseJson = {};
     try {
       responseJson = jsonDecode(response) as Map<String, dynamic>;
@@ -303,31 +400,47 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
     }
   }
 
-  void onChangeTglAwal(DateTime val) {
+  void onChangeTglAwal(DateTime val) async {
     if (DateFormat('yyyy-MM-dd').format(val) ==
         DateFormat('yyyy-MM-dd').format(DateTime.now())) {
-      EasyLoading.showToast(
+      return EasyLoading.showToast(
         'Tidak bisa pilih tanggal hari ini.',
         duration: const Duration(seconds: 2),
       );
     } else {
+      if (infoJenisIzin['JENIS_HARI'] != 'BULAN') {
+        setState(() {
+          lamaIzin = {'id': '', 'text': ''};
+        });
+      }
       setState(() {
         tglAwal = val;
         tglAkhir = null;
-        lama = '';
       });
+    }
+    if ((infoJenisIzin['JENIS_HARI'] == 'BULAN') && lamaIzin.isEmpty) {
+      setState(() {
+        tglAwal = null;
+      });
+      return EasyLoading.showToast(
+        'Tentukan lama pengajuan.',
+        duration: const Duration(seconds: 2),
+      );
+    }
+    if (infoJenisIzin['JENIS_HARI'] == 'BULAN') {
+      hitungLamaIzin();
     }
   }
 
-  void onChangeTglAkhir(DateTime val) {
+  void onChangeTglAkhir(DateTime val) async {
     if (DateFormat('yyyy-MM-dd').format(val) ==
         DateFormat('yyyy-MM-dd').format(DateTime.now())) {
-      EasyLoading.showToast(
+      return EasyLoading.showToast(
         'Tidak bisa pilih tanggal hari ini.',
         duration: const Duration(seconds: 2),
       );
     } else if (tglAwal == null) {
-      EasyLoading.showToast(
+      return EasyLoading.showToast(
         'Isi Tanggal Mulai terlebih dahulu.',
         duration: const Duration(seconds: 2),
       );
@@ -335,8 +448,8 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
       setState(() {
         tglAkhir = val;
       });
-      hitungCuti();
     }
+    hitungLamaIzin();
   }
 
   void _updateApproval(Map<String, dynamic> value) {
@@ -513,7 +626,7 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
                 ),
                 Expanded(
                   child: Text(
-                    'Tambah Pengajuan Cuti',
+                    'Tambah Pengajuan Izin',
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -540,115 +653,39 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
                 spacing: 10.sp,
                 children: [
                   Subtitleview(
-                    label: 'DATA KUOTA CUTI',
+                    label: 'PENGAJUAN IZIN',
                   ),
-                  Container(
-                    child: Text(
-                      'Cuti Tahunan :',
-                      style: TextStyle(
-                        fontFamily: 'GrenadineMVB',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10.sp,
-                      ),
-                    ),
+                  SizedBox(
+                    height: 0.5.sp,
                   ),
-                  Row(
-                    spacing: 15,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: InputView(
-                            label: 'Jatah Cuti :',
-                            value: '${infoCutiTahun['total_cuti'] ?? '0'}' +
-                                ' hari'),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: InputView(
-                            label: 'Cuti Diambil :',
-                            value: '${infoCutiTahun['total_diambil'] ?? '0'}' +
-                                ' hari'),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: InputView(
-                            label: 'Sisa Cuti :',
-                            value: '${infoCutiTahun['sisa_cuti'] ?? '0'}' +
-                                ' hari'),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    child: Text(
-                      'Cuti Panjang :',
-                      style: TextStyle(
-                        fontFamily: 'GrenadineMVB',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10.sp,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    spacing: 15,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: InputView(
-                            label: 'Jatah Cuti :',
-                            value: '${infoCutiPanjang['total_cuti'] ?? '0'}' +
-                                ' hari'),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: InputView(
-                            label: 'Cuti Diambil :',
-                            value:
-                                '${infoCutiPanjang['total_diambil'] ?? '0'}' +
-                                    ' hari'),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: InputView(
-                            label: 'Sisa Cuti :',
-                            value: '${infoCutiPanjang['sisa_cuti'] ?? '0'}' +
-                                ' hari'),
-                      ),
-                    ],
-                  ),
-                  Subtitleview(
-                    label: 'PENGAJUAN CUTI',
-                  ),
-                  Container(
-                    child: sisa_cuti == 0
-                        ? SizedBox()
-                        : status_tanggal_berlaku == 'T'
-                            ? Statusview(
-                                label:
-                                    'Tanggal pengajuan sebelumnya kadaluarsa, Silanghkan lengkapi kembali Tanggal cuti Anda.',
-                                color: Constants.reject,
-                              )
-                            : SizedBox(),
-                  ),
-                  Container(
-                    child: sisa_cuti == 0
-                        ? loading
-                            ? SizedBox()
-                            : Statusview(
-                                label:
-                                    'Sisa Cuti Anda sudah habis (0), atau data cuti Anda belum aktif. Silahkan hubungi pihak SDM.',
-                                color: Constants.reject,
-                              )
-                        : Column(
-                            children: [
-                              SizedBox(
-                                height: 0.5.sp,
-                              ),
-                              Form(
-                                  key: _formKey,
-                                  child: Column(
+                  Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 15.sp,
+                        children: [
+                          Select(
+                            label: 'Jenis Izin',
+                            value: jenisIzin,
+                            required: true,
+                            onChanged: (p0) {
+                              getJenisInfo(p0!['id']);
+                              setState(() {
+                                jenisIzin = p0;
+                                tglAwal = null;
+                                tglAkhir = null;
+                                lamaIzin = {'id': '', 'text': ''};
+                              });
+                            },
+                            items: dataJenisIzin,
+                          ),
+                          Container(
+                            child: infoJenisIzin.isEmpty
+                                ? SizedBox()
+                                : Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    spacing: 15.sp,
+                                    spacing: 10.sp,
                                     children: [
                                       TextInput(
                                         label: 'No. Pengajuan :',
@@ -660,49 +697,154 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
                                         },
                                         required: true,
                                       ),
-                                      Row(
-                                        spacing: 10.sp,
-                                        children: [
-                                          Expanded(
-                                            flex: 5,
-                                            child: DatePicker(
-                                              label: 'Tanggal Awal',
-                                              value: tglAwal,
-                                              onChanged: (p0) {
-                                                if (p0 != null) {
-                                                  onChangeTglAwal(p0!);
-                                                }
-                                              },
-                                              firstDate: DateTime.now(),
-                                              lastDate: DateTime(
-                                                  DateTime.now().year + 100),
-                                              enabled: true,
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 5,
-                                            child: DatePicker(
-                                              label: 'Tanggal Akhir',
-                                              value: tglAkhir,
-                                              onChanged: (p0) {
-                                                if (p0 != null) {
-                                                  onChangeTglAkhir(p0!);
-                                                }
-                                              },
-                                              firstDate: DateTime.now(),
-                                              lastDate: DateTime(
-                                                  DateTime.now().year + 100),
-                                              enabled: true,
-                                            ),
-                                          ),
-                                        ],
+                                      Container(
+                                        child: infoJenisIzin['JENIS_HARI'] ==
+                                                'BULAN'
+                                            ? Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                spacing: 10.sp,
+                                                children: [
+                                                  Select(
+                                                    label: 'Lama Izin',
+                                                    value: lamaIzin,
+                                                    required: true,
+                                                    onChanged: (p0) {
+                                                      setState(() {
+                                                        lamaIzin = p0!;
+                                                        tglAwal = null;
+                                                        tglAkhir = null;
+                                                      });
+                                                    },
+                                                    items: dataLamaIzin,
+                                                  ),
+                                                  Row(
+                                                    spacing: 10.sp,
+                                                    children: [
+                                                      Expanded(
+                                                        flex: 5,
+                                                        child: DatePicker(
+                                                          label: 'Tanggal Awal',
+                                                          value: tglAwal,
+                                                          onChanged: (p0) {
+                                                            if (p0 != null) {
+                                                              onChangeTglAwal(
+                                                                  p0!);
+                                                            }
+                                                          },
+                                                          firstDate:
+                                                              firstdate ??
+                                                                  DateTime
+                                                                      .now(),
+                                                          lastDate: DateTime(
+                                                              DateTime.now()
+                                                                      .year +
+                                                                  100),
+                                                          enabled: true,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 5,
+                                                        child: DatePicker(
+                                                          label:
+                                                              'Tanggal Akhir',
+                                                          value: tglAkhir,
+                                                          onChanged: (p0) {
+                                                            if (p0 != null) {
+                                                              onChangeTglAkhir(
+                                                                  p0!);
+                                                            }
+                                                          },
+                                                          firstDate:
+                                                              DateTime.now(),
+                                                          lastDate: DateTime(
+                                                              DateTime.now()
+                                                                      .year +
+                                                                  100),
+                                                          enabled: false,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )
+                                            : Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                spacing: 10.sp,
+                                                children: [
+                                                  Row(
+                                                    spacing: 10.sp,
+                                                    children: [
+                                                      Expanded(
+                                                        flex: 5,
+                                                        child: DatePicker(
+                                                          label: 'Tanggal Awal',
+                                                          value: tglAwal,
+                                                          onChanged: (p0) {
+                                                            if (p0 != null) {
+                                                              onChangeTglAwal(
+                                                                  p0!);
+                                                            }
+                                                          },
+                                                          firstDate:
+                                                              DateTime.now(),
+                                                          lastDate: DateTime(
+                                                              DateTime.now()
+                                                                      .year +
+                                                                  100),
+                                                          enabled: true,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 5,
+                                                        child: DatePicker(
+                                                          label:
+                                                              'Tanggal Akhir',
+                                                          value: tglAkhir,
+                                                          onChanged: (p0) {
+                                                            if (p0 != null) {
+                                                              onChangeTglAkhir(
+                                                                  p0!);
+                                                            }
+                                                          },
+                                                          firstDate:
+                                                              DateTime.now(),
+                                                          lastDate: DateTime(
+                                                              DateTime.now()
+                                                                      .year +
+                                                                  100),
+                                                          enabled: true,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    width: 0.4.sw,
+                                                    child: TextInput(
+                                                        label: 'Lama Izin',
+                                                        initialValue:
+                                                            '${lamaIzin['id']}',
+                                                        enabled: false),
+                                                  ),
+                                                ],
+                                              ),
                                       ),
-                                      SizedBox(
-                                        width: 0.4.sw,
-                                        child: TextInput(
-                                            label: 'Lama',
-                                            initialValue: lama,
-                                            enabled: false),
+                                      Container(
+                                        child: int.tryParse(infoJenisIzin[
+                                                    'KETERANGAN'])! >
+                                                0
+                                            ? TextInput(
+                                                label: 'Alasan',
+                                                initialValue: alasan,
+                                                onchanged: (p0) {
+                                                  setState(() {
+                                                    alasan = p0!;
+                                                  });
+                                                },
+                                                required: true,
+                                              )
+                                            : SizedBox(),
                                       ),
                                       TextInput(
                                         label: 'Alamat',
@@ -714,26 +856,80 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
                                         },
                                         required: true,
                                       ),
-                                      TextInput(
-                                        label: 'Alasan Cuti',
-                                        initialValue: alasan,
-                                        onchanged: (p0) {
-                                          setState(() {
-                                            alasan = p0!;
-                                          });
+                                      FilesPicker(
+                                        label: 'Lampiran',
+                                        value: dokumen,
+                                        onChanged: (p0) {
+                                          // hanya bisa upload file pdf.
+                                          PlatformFile file = p0!.files.first;
+                                          if (file.extension == 'pdf') {
+                                            setState(() {
+                                              dokumen = p0!;
+                                            });
+                                          } else {
+                                            EasyLoading.showToast(
+                                              'Tidak bisa upload, Format file anda ${file.extension}',
+                                              duration:
+                                                  const Duration(seconds: 2),
+                                            );
+                                          }
                                         },
-                                        required: true,
+                                        fromCamera: false,
+                                        link: '',
+                                        enabled: true,
                                       ),
-                                      TextInput(
-                                        label: 'Pengganti Selama Cuti',
-                                        initialValue: pengganti,
-                                        onchanged: (p0) {
-                                          setState(() {
-                                            pengganti = p0!;
-                                          });
-                                        },
-                                        required: true,
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            // width: double.infinity,
+                                            flex: 6,
+                                            child: Text(
+                                              '*Upload file dengan format .pdf',
+                                              textAlign: TextAlign.left,
+                                              style: TextStyle(
+                                                fontFamily: 'GrenadineMVB',
+                                                fontSize: 9.sp,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 4,
+                                            child: pathFile != ''
+                                                ? InkWell(
+                                                    onTap: () {
+                                                      // Constants.launchUrl(pathFile);
+                                                      Navigator.pushNamed(
+                                                          context, '/viewpdf',
+                                                          arguments: {
+                                                            'url': Constants
+                                                                    .baseWebUrl +
+                                                                pathFile,
+                                                            'title': 'Dokumen',
+                                                            'btn_download':
+                                                                false,
+                                                          });
+                                                    },
+                                                    child: Text(
+                                                      'Lihat Lampiran',
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                      style: TextStyle(
+                                                        fontFamily:
+                                                            'GrenadineMVB',
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        fontSize: 10.sp,
+                                                        color: const Color(
+                                                            0xff3174c7),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : SizedBox(),
+                                          ),
+                                        ],
                                       ),
+                                      SizedBox(height: 1.sp),
                                       Row(
                                         spacing: 10.sp,
                                         children: [
@@ -881,10 +1077,10 @@ class _PengajuanCutiAddState extends State<PengajuanCutiAdd> {
                                         ],
                                       )
                                     ],
-                                  )),
-                            ],
+                                  ),
                           ),
-                  ),
+                        ],
+                      )),
                 ],
               ),
             ),

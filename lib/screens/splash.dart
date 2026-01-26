@@ -170,9 +170,9 @@ class __Splash extends StatelessWidget {
                 animDuration: const Duration(milliseconds: 800),
                 curve: Curves.easeInOut,
                 child: Image.asset(
-                  'assets/images/logo-splash.png',
-                  width: 0.4.swr,
-                  height: 0.4.swr,
+                  'assets/images/logo_harmonis.png',
+                  width: 0.6.sw,
+                  height: 0.2.sw,
                 ),
               ),
             ),
@@ -246,6 +246,7 @@ class _LoginState extends State<Login> {
       Map<String, dynamic> responseJson = {};
       try {
         responseJson = jsonDecode(response) as Map<String, dynamic>;
+        // print(responseJson);
       } on FormatException {
         EasyLoading.showToast(
           'Network error!',

@@ -11,15 +11,15 @@ import 'package:hris/components/textinput.dart';
 import 'package:hris/configs/constants.dart';
 import 'package:hris/models/api.dart';
 
-class PengajuanCutiView extends StatefulWidget {
+class PengajuanReimburseView extends StatefulWidget {
   final Object? arguments;
-  const PengajuanCutiView({super.key, this.arguments});
+  const PengajuanReimburseView({super.key, this.arguments});
 
   @override
-  State<PengajuanCutiView> createState() => _PengajuanCutiViewState();
+  State<PengajuanReimburseView> createState() => _PengajuanReimburseViewState();
 }
 
-class _PengajuanCutiViewState extends State<PengajuanCutiView> {
+class _PengajuanReimburseViewState extends State<PengajuanReimburseView> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
@@ -41,7 +41,7 @@ class _PengajuanCutiViewState extends State<PengajuanCutiView> {
   }
 
   void getData(String id) async {
-    ApiModel model = ApiModel('pengajuan-cuti/${id}');
+    ApiModel model = ApiModel('pengajuan-reimburse/${id}');
     model.get().then((value) async {
       if (value['status'] == 'APPROVE') {
         status_color = Constants.approve;
@@ -86,7 +86,7 @@ class _PengajuanCutiViewState extends State<PengajuanCutiView> {
                 ),
                 Expanded(
                   child: Text(
-                    'Detil Pengajuan Cuti',
+                    'Detil Permohonan Reimburse',
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -116,73 +116,57 @@ class _PengajuanCutiViewState extends State<PengajuanCutiView> {
                     spacing: 4,
                     children: [
                       InputView(
-                          label: 'No. Pengajuan :',
+                          label: 'No. Permohonan :',
                           value: data['nomor'] ?? '-'),
-                      Row(
-                        spacing: 15,
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: InputView(
-                                label: 'Tanggal Mulai :',
-                                value: data['tanggal_awal'] ?? '-'),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: InputView(
-                                label: 'Tanggal Selesai :',
-                                value: data['tanggal_akhir'] ?? '-'),
-                          )
-                        ],
-                      ),
                       InputView(
-                          label: 'Lama Cuti :',
-                          value: '${data['jumlah_hari'] ?? '-'}'),
+                          label: 'Tanggal Permohonan :',
+                          value: data['tanggal'] ?? '-'),
                       InputView(
-                          label: 'Alamat :', value: data['alamat'] ?? '-'),
+                          label: 'Nama Pasien :', value: data['nama'] ?? '-'),
                       InputView(
-                          label: 'Alasan Cuti :',
-                          value: data['keterangan'] ?? '-'),
+                          label: 'Jenis Pemeriksaan :',
+                          value: data['jenis_faskes'] ?? '-'),
                       InputView(
-                          label: 'Pengganti selama cuti :',
-                          value: data['keterangan_pengganti'] ?? '-'),
+                          label: 'Kondisi :', value: data['kondisi'] ?? '-'),
                       InputView(
-                          label: 'Approval I :',
-                          value: data['pegawai_approval1'] ?? '-'),
+                          label: 'Nama Klinik / RS :',
+                          value: data['deskripsi'] ?? '-'),
                       InputView(
-                          label: 'Approval II :',
-                          value: data['pegawai_approval2'] ?? '-'),
+                          label: 'Jumlah Pengajuan (RP) :',
+                          value: data['jumlah_pengajuan'] ?? '-'),
+                      InputView(
+                          label: 'Atasan :', value: data['approver'] ?? '-'),
                       Statusview(
                         label: data['status_desc'] ?? '-',
                         color: status_color,
                       ),
                       SizedBox(height: 40.sp),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 15.sp,
-                        children: [
-                          ButtonIcon(
-                            labelColor: Colors.white,
-                            bgColor: Constants.primaryYellow,
-                            icon: Icon(Icons.print,
-                                color: Colors.white, size: 16),
-                            label: Text(
-                              'Cetak',
-                              style: TextStyle(
-                                  fontFamily: 'GrenadineMVB', fontSize: 12),
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/viewpdf',
-                                  arguments: {
-                                    'url': data['link_url'],
-                                    'title': 'Surat Permohonan Cuti',
-                                    'btn_download': true,
-                                  });
-                            },
-                          ),
-                        ],
-                      )
+                      // Row(
+                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   spacing: 15.sp,
+                      //   children: [
+                      //     ButtonIcon(
+                      //       labelColor: Colors.white,
+                      //       bgColor: Constants.primaryYellow,
+                      //       icon: Icon(Icons.print,
+                      //           color: Colors.white, size: 16),
+                      //       label: Text(
+                      //         'Cetak',
+                      //         style: TextStyle(
+                      //             fontFamily: 'GrenadineMVB', fontSize: 12),
+                      //       ),
+                      //       onPressed: () {
+                      //         Navigator.pushNamed(context, '/viewpdf',
+                      //             arguments: {
+                      //               'url': data['link_url'],
+                      //               'title': 'Surat Permohonan Cuti',
+                      //               'btn_download': true,
+                      //             });
+                      //       },
+                      //     ),
+                      //   ],
+                      // )
                     ],
                   ),
                 ),

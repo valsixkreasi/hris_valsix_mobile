@@ -143,122 +143,115 @@ class _ViewPDFState extends State<ViewPDF> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      key: refreshIndicatorKey,
-      onRefresh: () async {
-        loadDocument();
-      },
-      child: NavHeader(
-          showBottomNavigationBar: false,
-          showDrawer: true,
-          scaffoldKey: scaffoldKey,
-          title: Container(
-            color: Colors.white,
-            padding: EdgeInsets.only(left: 10.sp, right: 10.sp),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              // crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: Color(0xff888888),
-                  ),
+    return NavHeader(
+        showBottomNavigationBar: false,
+        showDrawer: true,
+        scaffoldKey: scaffoldKey,
+        title: Container(
+          color: Colors.white,
+          padding: EdgeInsets.only(left: 10.sp, right: 10.sp),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Color(0xff888888),
                 ),
-                Expanded(
-                  child: Text(
-                    argum['title'] ?? 'DOKUMEN',
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'GrenadineMVB',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12.sp,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                argum['btn_download']
-                    ? IconButton(
-                        onPressed: () {
-                          // download(argum['url'], '${argum['title']}.pdf');
-                          // download(
-                          //     'https://tinypng.com/images/social/developer-api.jpg',
-                          //     'PANDA.jpg');
-
-                          downloadFile(argum['url'], '${argum['title']}.pdf');
-                          // downloadFile(
-                          //     'https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf',
-                          //     'sample.pdf');
-                        },
-                        icon: Icon(
-                          Icons.download_rounded,
-                          color: Constants.primaryBlue,
-                        ),
-                      )
-                    : SizedBox(width: 40.sp),
-              ],
-            ),
-          ),
-          children: [
-            Stack(children: [
-              Container(
-                width: 1.sw,
-                height: 1.sh - ScreenUtil().statusBarHeight - 40.sp,
-                padding:
-                    EdgeInsets.symmetric(vertical: 10.sp, horizontal: 15.sp),
-                margin: EdgeInsets.only(top: 40.sp),
-                // color: Color(0xff888888),
-                child: _isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : PDFViewer(
-                        document: document,
-                        backgroundColor: Colors.transparent,
-                        // zoomSteps: 1,
-                        //uncomment below line to preload all pages
-                        lazyLoad: false,
-                        // uncomment below line to scroll vertically
-                        scrollDirection: Axis.vertical,
-                        //uncomment below code to replace bottom navigation with your own
-                        /*
-                        navigationBuilder: (context, page, totalPages,
-                            jumpToPage, animateToPage) {
-                          return ButtonBar(
-                            alignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              IconButton(
-                                icon: Icon(Icons.first_page),
-                                onPressed: () {
-                                  jumpToPage()(page: 0);
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.arrow_back),
-                                onPressed: () {
-                                  animateToPage(page: page - 2);
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.arrow_forward),
-                                onPressed: () {
-                                  animateToPage(page: page);
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.last_page),
-                                onPressed: () {
-                                  jumpToPage(page: totalPages - 1);
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                        */
-                      ),
               ),
-            ]),
+              Expanded(
+                child: Text(
+                  argum['title'] ?? 'DOKUMEN',
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'GrenadineMVB',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.sp,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              argum['btn_download']
+                  ? IconButton(
+                      onPressed: () {
+                        // download(argum['url'], '${argum['title']}.pdf');
+                        // download(
+                        //     'https://tinypng.com/images/social/developer-api.jpg',
+                        //     'PANDA.jpg');
+
+                        downloadFile(argum['url'], '${argum['title']}.pdf');
+                        // downloadFile(
+                        //     'https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf',
+                        //     'sample.pdf');
+                      },
+                      icon: Icon(
+                        Icons.download_rounded,
+                        color: Constants.primaryBlue,
+                      ),
+                    )
+                  : SizedBox(width: 40.sp),
+            ],
+          ),
+        ),
+        children: [
+          Stack(children: [
+            Container(
+              width: 1.sw,
+              height: 1.sh - ScreenUtil().statusBarHeight - 40.sp,
+              padding: EdgeInsets.symmetric(vertical: 10.sp, horizontal: 15.sp),
+              margin: EdgeInsets.only(top: 40.sp),
+              // color: Color(0xff888888),
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : PDFViewer(
+                      document: document,
+                      backgroundColor: Colors.transparent,
+                      // zoomSteps: 1,
+                      //uncomment below line to preload all pages
+                      lazyLoad: false,
+                      // uncomment below line to scroll vertically
+                      scrollDirection: Axis.vertical,
+                      //uncomment below code to replace bottom navigation with your own
+                      /*
+                      navigationBuilder: (context, page, totalPages,
+                          jumpToPage, animateToPage) {
+                        return ButtonBar(
+                          alignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(Icons.first_page),
+                              onPressed: () {
+                                jumpToPage()(page: 0);
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.arrow_back),
+                              onPressed: () {
+                                animateToPage(page: page - 2);
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.arrow_forward),
+                              onPressed: () {
+                                animateToPage(page: page);
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.last_page),
+                              onPressed: () {
+                                jumpToPage(page: totalPages - 1);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                      */
+                    ),
+            ),
           ]),
-    );
+        ]);
   }
 }

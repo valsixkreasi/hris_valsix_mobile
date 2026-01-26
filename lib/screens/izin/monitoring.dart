@@ -11,14 +11,14 @@ import 'package:hris/components/statusview.dart';
 import 'package:hris/configs/constants.dart';
 import 'package:hris/models/api.dart';
 
-class PengajuanCuti extends StatefulWidget {
-  const PengajuanCuti({super.key});
+class PengajuanIzin extends StatefulWidget {
+  const PengajuanIzin({super.key});
 
   @override
-  State<PengajuanCuti> createState() => _PengajuanCutiState();
+  State<PengajuanIzin> createState() => _PengajuanIzinState();
 }
 
-class _PengajuanCutiState extends State<PengajuanCuti> {
+class _PengajuanIzinState extends State<PengajuanIzin> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
@@ -35,7 +35,7 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
   }
 
   void getData() async {
-    ApiModel model = ApiModel('pengajuan-cuti');
+    ApiModel model = ApiModel('pengajuan-izin');
     model.get().then((value) async {
       setState(() {
         data = value;
@@ -47,11 +47,11 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
   void _navigateToPage(String id) async {
     final result;
     if (id == '') {
-      result = await Navigator.pushNamed(context, '/pengajuan_cuti_add');
+      result = await Navigator.pushNamed(context, '/pengajuan_izin_add');
     } else {
       result = await Navigator.pushNamed(
         context,
-        '/pengajuan_cuti_add',
+        '/pengajuan_izin_add',
         arguments: {
           'id': id,
         },
@@ -104,7 +104,7 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                 ),
                 Expanded(
                   child: Text(
-                    'Pengajuan Cuti',
+                    'Pengajuan Izin',
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -152,9 +152,9 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                               onPressed: () {
                                 Navigator.pushNamed(
                                   context,
-                                  '/pengajuan_cuti_view',
+                                  '/pengajuan_izin_view',
                                   arguments: {
-                                    'id': dataItem['permohonan_cuti_id'],
+                                    'id': dataItem['ketidakhadiran_id'],
                                   },
                                 );
                               },
@@ -196,7 +196,7 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                                               Expanded(
                                                 flex: 9,
                                                 child: Text(
-                                                  '${dataItem['tanggal_awal'] ?? '-'} s/d ${dataItem['tanggal_akhir'] ?? '-'}',
+                                                  '${dataItem['tanggal_cuti'] ?? '-'}',
                                                   style: TextStyle(
                                                     fontFamily: 'GrenadineMVB',
                                                     fontWeight:
@@ -212,7 +212,7 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                                                     ? InkResponse(
                                                         onTap: () {
                                                           _navigateToPage(dataItem[
-                                                              'permohonan_cuti_id']);
+                                                              'ketidakhadiran_id']);
                                                         },
                                                         child: Icon(
                                                           Icons.edit_square,
@@ -236,6 +236,10 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(height: 1.sp),
+                                          InputView(
+                                              label: 'Jenis Izin :',
+                                              value: dataItem[
+                                                  'ketidakhadiran_jenis']),
                                           Row(
                                             spacing: 10.sp,
                                             children: [
@@ -253,7 +257,7 @@ class _PengajuanCutiState extends State<PengajuanCuti> {
                                                 child: InputView(
                                                     label: 'Jumlah Hari :',
                                                     value:
-                                                        '${dataItem['jumlah_hari'] ?? '-'}'),
+                                                        '${dataItem['jumlah_hari'] ?? '-'} ${dataItem['ketidakhadiran_jenis_hari']}'),
                                               ),
                                             ],
                                           ),
