@@ -331,7 +331,7 @@ class _PresensiMapState extends State<PresensiMap>
       setState(() {
         jenisAbsen.addAll(arrJenis);
         jenisMood.addAll(arrMood);
-        abseninout = value['absen_inout'];
+        abseninout = value['absen_inout'] ?? '';
       });
       EasyLoading.dismiss();
     });
@@ -350,9 +350,10 @@ class _PresensiMapState extends State<PresensiMap>
       'reqGmt': '${DateTime.now().timeZoneOffset.inHours}',
       'reqTimeZone': currentTimeZone,
       'reqJenisAbsen': '$selectedJenisAbsen',
-      'reqSubJenisAbsen': '$selectedSubJenisAbsen',
+      'reqSubJenisAbsen': '$selectedSubJenisAbsen', // jika OUT dibuat kosong
       'reqAlamat': alamat,
-      'reqMood': selectedMood
+      'reqMood': selectedMood,
+      'reqModeAbsen': abseninout
     };
     // print(body);
     // return;
@@ -459,128 +460,81 @@ class _PresensiMapState extends State<PresensiMap>
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black),
-              content: Column(
-                  mainAxisSize:
-                      MainAxisSize.min, // Agar dialog tidak memenuhi layar
-                  children: [
-                    Divider(height: 1.0),
-                    SizedBox(height: 10),
-                    Wrap(
-                      spacing: 6.sp,
-                      runSpacing: 6.sp,
-                      children: [
-                        ...jenisMood.map((item) {
-                          String label = '';
-                          if (item['kode'] != '') {
-                            label = item['kode'][0].toUpperCase() +
-                                item['kode'].substring(1).toLowerCase();
-                          }
-                          return ButtonMood(
-                            onPress: () {
-                              setDialogState(() {
-                                selectedMood = item['kode'];
-                              });
-                            },
-                            selected:
-                                item['kode'] == selectedMood ? true : false,
-                            iconMood: item['link_icon'],
-                            label: label,
-                          );
-                        })
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    ...jenisAbsen.map((item) {
-                      final String controllerKode =
-                          item['kode'].replaceAll(" ", "");
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
+              content: Container(
+                width: 0.9.sw,
+                child: Column(
+                    mainAxisSize:
+                        MainAxisSize.min, // Agar dialog tidak memenuhi layar
+                    children: [
+                      Divider(height: 1.0),
+                      SizedBox(height: 10),
+                      Wrap(
+                        spacing: 4.sp,
+                        runSpacing: 4.sp,
                         children: [
-                          Divider(height: 1.0),
-                          // bungkus dengan Theme utk menyesuaikan jarak / padding
-                          Theme(
-                            data: Theme.of(context).copyWith(
-                              listTileTheme: const ListTileThemeData(
-                                horizontalTitleGap:
-                                    4.0, // Sesuaikan jarak di sini
-                                minVerticalPadding: 2.0,
-                              ),
-                            ),
-                            child: RadioListTile<String>(
-                              contentPadding: EdgeInsets.zero,
-                              visualDensity: VisualDensity(
-                                horizontal: -4,
-                                vertical: -4,
-                              ),
-                              activeColor: Constants.primaryGreen,
-                              title: Text(item['kode']!),
-                              value: item['kode']!,
-                              groupValue: selectedJenisAbsen,
-                              onChanged: (String? value) {
-                                // Gunakan setDialogState untuk memperbarui UI di dalam dialog
+                          ...jenisMood.map((item) {
+                            String label = '';
+                            if (item['kode'] != '') {
+                              label = item['kode'][0].toUpperCase() +
+                                  item['kode'].substring(1).toLowerCase();
+                            }
+                            return ButtonMood(
+                              onPress: () {
                                 setDialogState(() {
-                                  selectedJenisAbsen = value!;
-                                  selectedJenisAbsenAghris =
-                                      item['kode_aghris'];
-                                  selectedSubJenisAbsen =
-                                      item['sub_jenis'].length > 0
-                                          ? item['sub_jenis'][0]
-                                          : "";
-                                  radioGroupControllers
-                                      .forEach((key, controller) {
-                                    // Jika ID tidak sama dengan yang diklik, reset controller-nya
-                                    if (key != controllerKode) {
-                                      // Pastikan controller masih memiliki widget yang menempel
-                                      controller.value =
-                                          null; // membuat sub jenis yg lainnya unselect
-                                    }
-                                  });
-                                  lokasiBebas =
-                                      item['status_lokasi_bebas'] == 'Y'
-                                          ? true
-                                          : false;
+                                  selectedMood = item['kode'];
                                 });
-                                if (item['sub_jenis'].length > 0) {
-                                  // Memilih item pertama pada sub jenis
-                                  radioGroupControllers[controllerKode]!
-                                      .selectAt(0);
-                                }
                               },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 32),
-                            child: item['sub_jenis'].length > 0
-                                ? Padding(
-                                    padding: const EdgeInsets.only(bottom: 4),
-                                    child: RadioGroup(
-                                      key: radioKeys[controllerKode],
-                                      controller:
-                                          radioGroupControllers[controllerKode],
-                                      values:
-                                          item['sub_jenis'], // data array jenis
-                                      // indexOfDefault = default selected, -1 artinya tidak ada yg terpilih.
-                                      indexOfDefault: -1,
-                                      orientation:
-                                          RadioGroupOrientation.horizontal,
-                                      decoration: RadioGroupDecoration(
-                                          horizontalAlignment:
-                                              WrapAlignment.spaceBetween),
-                                      // labelBuilder = label radio button
-                                      labelBuilder: (value) => Text(value),
-                                      // Logika pembeda di sini
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          // Jalankan pembersihan grup lain SEGERA SETELAH frame saat ini selesai
-                                          Future.microtask(() {
+                              selected:
+                                  item['kode'] == selectedMood ? true : false,
+                              iconMood: item['link_icon'],
+                              label: label,
+                            );
+                          })
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      abseninout == 'IN'
+                          ? Column(
+                              children: [
+                                ...jenisAbsen.map((item) {
+                                  final String controllerKode =
+                                      item['kode'].replaceAll(" ", "");
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Divider(height: 1.0),
+                                      // bungkus dengan Theme utk menyesuaikan jarak / padding
+                                      Theme(
+                                        data: Theme.of(context).copyWith(
+                                          listTileTheme:
+                                              const ListTileThemeData(
+                                            horizontalTitleGap:
+                                                4.0, // Sesuaikan jarak di sini
+                                            minVerticalPadding: 2.0,
+                                          ),
+                                        ),
+                                        child: RadioListTile<String>(
+                                          contentPadding: EdgeInsets.zero,
+                                          visualDensity: VisualDensity(
+                                            horizontal: -4,
+                                            vertical: -4,
+                                          ),
+                                          activeColor: Constants.primaryGreen,
+                                          title: Text(item['kode']!),
+                                          value: item['kode']!,
+                                          groupValue: selectedJenisAbsen,
+                                          onChanged: (String? value) {
+                                            // Gunakan setDialogState untuk memperbarui UI di dalam dialog
                                             setDialogState(() {
-                                              selectedJenisAbsen = item['kode'];
+                                              selectedJenisAbsen = value!;
                                               selectedJenisAbsenAghris =
                                                   item['kode_aghris'];
-                                              selectedSubJenisAbsen = value;
-                                              selectedSubJenisAbsenAghris =
-                                                  '${radioGroupControllers[controllerKode]!.selectedIndex}';
+                                              selectedSubJenisAbsen =
+                                                  item['sub_jenis'].length > 0
+                                                      ? item['sub_jenis'][0]
+                                                      : "";
                                               radioGroupControllers
                                                   .forEach((key, controller) {
                                                 // Jika ID tidak sama dengan yang diklik, reset controller-nya
@@ -596,20 +550,93 @@ class _PresensiMapState extends State<PresensiMap>
                                                       ? true
                                                       : false;
                                             });
-                                          });
-                                        }
-                                        // print(
-                                        //     "Kategori: ${item['kode']}, Sub Pilih: $value");
-                                      },
-                                    ),
-                                  )
-                                : SizedBox(),
-                          ),
-                        ],
-                      );
-                    }).toList(),
-                    Divider(height: 1.0),
-                  ]),
+                                            if (item['sub_jenis'].length > 0) {
+                                              // Memilih item pertama pada sub jenis
+                                              radioGroupControllers[
+                                                      controllerKode]!
+                                                  .selectAt(0);
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 32),
+                                        child: item['sub_jenis'].length > 0
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 4),
+                                                child: RadioGroup(
+                                                  key:
+                                                      radioKeys[controllerKode],
+                                                  controller:
+                                                      radioGroupControllers[
+                                                          controllerKode],
+                                                  values: item[
+                                                      'sub_jenis'], // data array jenis
+                                                  // indexOfDefault = default selected, -1 artinya tidak ada yg terpilih.
+                                                  indexOfDefault: -1,
+                                                  orientation:
+                                                      RadioGroupOrientation
+                                                          .horizontal,
+                                                  decoration:
+                                                      RadioGroupDecoration(
+                                                          horizontalAlignment:
+                                                              WrapAlignment
+                                                                  .spaceBetween),
+                                                  // labelBuilder = label radio button
+                                                  labelBuilder: (value) =>
+                                                      Text(value),
+                                                  // Logika pembeda di sini
+                                                  onChanged: (value) {
+                                                    if (value != null) {
+                                                      // Jalankan pembersihan grup lain SEGERA SETELAH frame saat ini selesai
+                                                      Future.microtask(() {
+                                                        setDialogState(() {
+                                                          selectedJenisAbsen =
+                                                              item['kode'];
+                                                          selectedJenisAbsenAghris =
+                                                              item[
+                                                                  'kode_aghris'];
+                                                          selectedSubJenisAbsen =
+                                                              value;
+                                                          selectedSubJenisAbsenAghris =
+                                                              '${radioGroupControllers[controllerKode]!.selectedIndex}';
+                                                          radioGroupControllers
+                                                              .forEach((key,
+                                                                  controller) {
+                                                            // Jika ID tidak sama dengan yang diklik, reset controller-nya
+                                                            if (key !=
+                                                                controllerKode) {
+                                                              // Pastikan controller masih memiliki widget yang menempel
+                                                              controller.value =
+                                                                  null; // membuat sub jenis yg lainnya unselect
+                                                            }
+                                                          });
+                                                          lokasiBebas =
+                                                              item['status_lokasi_bebas'] ==
+                                                                      'Y'
+                                                                  ? true
+                                                                  : false;
+                                                        });
+                                                      });
+                                                    }
+                                                    // print(
+                                                    //     "Kategori: ${item['kode']}, Sub Pilih: $value");
+                                                  },
+                                                ),
+                                              )
+                                            : SizedBox(),
+                                      ),
+                                    ],
+                                  );
+                                }).toList()
+                              ],
+                            )
+                          : SizedBox(),
+                      Divider(height: 1.0),
+                    ]),
+              ),
               actions: [
                 ButtonIcon(
                   labelColor: Colors.white,
@@ -936,6 +963,60 @@ class _PresensiMapState extends State<PresensiMap>
                   ],
                 ),
               ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ButtonIcon(
+                    labelColor: Colors.white,
+                    bgColor: Constants.primaryYellow,
+                    icon: Icon(Icons.login, color: Colors.white, size: 16),
+                    label: Text(
+                      'Check In',
+                      style: TextStyle(
+                          fontFamily: 'GrenadineMVB',
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        abseninout = 'IN';
+                      });
+                      popUpJenisAbsen(context);
+                    },
+                  ),
+                  ButtonIcon(
+                    labelColor: Colors.white,
+                    bgColor: Constants.reject,
+                    icon: Icon(Icons.logout, color: Colors.white, size: 16),
+                    label: Text(
+                      'Check Out',
+                      style: TextStyle(
+                          fontFamily: 'GrenadineMVB',
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      if (logHariIni.isEmpty) {
+                        EasyLoading.showToast(
+                          'Harap Check In terlebih dahulu.',
+                          duration: const Duration(seconds: 1),
+                        );
+                      } else {
+                        setState(() {
+                          // untuk checkout jenis absen diambilkan dari data checkin sebelumnya
+                          selectedJenisAbsen = logHariIni['auth_masuk'];
+                          bisaAbsen = true;
+                          abseninout = 'OUT';
+                        });
+                        popUpJenisAbsen(context);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              /*
               Center(
                 child: Button(
                   padding: EdgeInsets.all(0),
@@ -979,6 +1060,7 @@ class _PresensiMapState extends State<PresensiMap>
                   ),
                 ),
               ),
+              */
               InfoLogAbsen(
                 datang: logHariIni['jam_masuk'] ?? '--:--',
                 pulang: logHariIni['jam_pulang'] ?? '--:--',
@@ -1012,8 +1094,8 @@ class ButtonMood extends StatelessWidget {
     return InkWell(
       onTap: () => onPress(),
       child: Container(
-        width: 0.17.sw,
-        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+        width: 0.16.sw,
+        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         decoration: BoxDecoration(
             color: selected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
@@ -1135,11 +1217,12 @@ class InfoLogAbsen extends StatelessWidget {
                 ),
                 SizedBox(
                   width: 0.2.sw,
-                  child: Text(
-                    moodDatang == '' ? '-' : moodDatang,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11.sp),
-                  ),
+                  child: moodDatang == '-'
+                      ? Text('-', textAlign: TextAlign.center)
+                      : Image.network(
+                          '${Constants.baseWebUrl}uploads/jenis_mood/${moodDatang}.png',
+                          width: 20,
+                          height: 20),
                 ),
               ],
             ),
@@ -1176,11 +1259,12 @@ class InfoLogAbsen extends StatelessWidget {
                 ),
                 SizedBox(
                   width: 0.2.sw,
-                  child: Text(
-                    moodPulang == '' ? '-' : moodPulang,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11.sp),
-                  ),
+                  child: moodPulang == '-'
+                      ? Text('-', textAlign: TextAlign.center)
+                      : Image.network(
+                          '${Constants.baseWebUrl}uploads/jenis_mood/${moodPulang}.png',
+                          width: 20,
+                          height: 20),
                 ),
               ],
             ),

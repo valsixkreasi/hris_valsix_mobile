@@ -569,6 +569,8 @@ class Constants {
       if (response.statusCode == 200) {
         return response.body;
       } else {
+        print("Error Server (Status Code): ${response.statusCode}");
+        print("Pesan Error dari Server: ${response.body}");
         return jsonEncode({
           'status': 'failed',
           'message': 'Koneksi gagal. Coba lagi nanti.',

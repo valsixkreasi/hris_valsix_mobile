@@ -63,7 +63,7 @@ class _PresensiLogBawahanState extends State<PresensiLogBawahan> {
     ApiModel model = ApiModel('log_presensi_atasan_json?');
     model.setParam({'reqPeriode': '${selectedPeriode['id']}'});
     model.get().then((value) async {
-      print(value);
+      // print(value);
       setState(() {
         data = value['result'];
       });
@@ -158,7 +158,7 @@ class _PresensiLogBawahanState extends State<PresensiLogBawahan> {
                                   context,
                                   '/presensi_log_detil',
                                   arguments: {
-                                    'id': '',
+                                    'id': selectedPeriode['id'],
                                     'pegawaiId': dataItem['pegawai_id'],
                                     'mode': 'bawahan',
                                   },

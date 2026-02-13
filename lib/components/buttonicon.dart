@@ -23,17 +23,30 @@ class ButtonIcon extends StatefulWidget {
 class _ButtonIconState extends State<ButtonIcon> {
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      style: TextButton.styleFrom(
-        foregroundColor: widget.labelColor,
-        backgroundColor: widget.bgColor,
-        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-        minimumSize: Size(100, 34),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2), // Warna shadow
+            blurRadius: 0.5, // Tingkat keburaman
+            offset: Offset(0, 1), // Posisi shadow (x, y)
+            spreadRadius: 0.5, // Sebaran shadow
+          ),
+        ],
       ),
-      onPressed: widget.onPressed,
-      icon: widget.icon,
-      label: widget.label,
+      child: TextButton.icon(
+        style: TextButton.styleFrom(
+          foregroundColor: widget.labelColor,
+          backgroundColor: widget.bgColor,
+          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+          minimumSize: Size(100, 34),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        onPressed: widget.onPressed,
+        icon: widget.icon,
+        label: widget.label,
+      ),
     );
   }
 }

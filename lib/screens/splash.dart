@@ -323,6 +323,15 @@ class _LoginState extends State<Login> {
                       height: 0.3.swr,
                     ),
                   ),
+                  Container(
+                    margin: EdgeInsets.only(right: 6.sp),
+                    child: Image.asset(
+                      'assets/images/logo_harmonis.png',
+                      width: 0.6.sw,
+                      height: 0.2.sw,
+                    ),
+                  ),
+                  /*
                   Text(
                     'HRIS',
                     textAlign: TextAlign.center,
@@ -347,6 +356,7 @@ class _LoginState extends State<Login> {
                       letterSpacing: 2,
                     ),
                   ),
+                  */
                   Container(
                     margin: EdgeInsets.only(top: 20.sp),
                     // color: Color(0xffffffff),

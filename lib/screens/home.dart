@@ -438,11 +438,6 @@ class _HomeState extends State<Home> {
         'icon': 'assets/images/icons8-gavel.png',
         'route': '/persetujuan'
       },
-      {
-        'title': 'Presensi',
-        'icon': 'assets/images/icons8-fingerprint.png',
-        'route': '/presensi'
-      },
     ];
 
     return RefreshIndicator(
@@ -504,13 +499,13 @@ class _HomeState extends State<Home> {
             // AREA INFORMASI PROFIL
             Container(
               width: 1.sw,
-              height: 0.69.sh,
+              height: 0.74.sh,
               padding: EdgeInsets.only(left: 15.sp, right: 15.sp),
               child: Stack(
                 children: [
                   // AREA BG MAIN MENU
                   Positioned(
-                    top: 0.42.sh,
+                    top: 0.47.sh,
                     // width: 0.92.sw,
                     // height: 0.22.sh,
                     child: Container(
@@ -528,7 +523,7 @@ class _HomeState extends State<Home> {
                   ),
                   // AREA MAIN MENU
                   Positioned(
-                    top: 0.44.sh,
+                    top: 0.488.sh,
                     child: Container(
                       width: 0.92.sw,
                       // color: Colors.grey,
@@ -568,7 +563,7 @@ class _HomeState extends State<Home> {
                   Container(
                     margin: EdgeInsets.only(top: 0.1.sh),
                     // alignment: Alignment.topLeft,
-                    height: 0.34.sh,
+                    height: 0.38.sh,
                     // color: Color(0xff24cc43),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
@@ -705,7 +700,7 @@ class _HomeState extends State<Home> {
                                 child: UnconstrainedBox(
                                   child: ButtonIcon(
                                     labelColor: Colors.white,
-                                    bgColor: Color(0xff53b6e2),
+                                    bgColor: Constants.primaryBlue,
                                     icon: Icon(Icons.person,
                                         color: Colors.white, size: 16),
                                     label: Text(
@@ -741,7 +736,7 @@ class _HomeState extends State<Home> {
                                 child: UnconstrainedBox(
                                   child: ButtonIcon(
                                     labelColor: Colors.white,
-                                    bgColor: Color(0xfffdbd5e),
+                                    bgColor: Constants.primaryBlue,
                                     icon: Icon(Icons.print,
                                         color: Colors.white, size: 16),
                                     label: Text(
@@ -763,7 +758,33 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                           ],
-                        )
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: 40.sp,
+                            alignment: Alignment.topRight,
+                            padding: const EdgeInsets.only(right: 10, top: 3),
+                            // color: Colors.white,
+                            child: UnconstrainedBox(
+                              child: ButtonIcon(
+                                labelColor: Colors.white,
+                                bgColor: Constants.primaryYellow,
+                                icon: Icon(Icons.file_copy,
+                                    color: Colors.white, size: 16),
+                                label: Text(
+                                  'Presensi',
+                                  style: TextStyle(
+                                      fontFamily: 'GrenadineMVB',
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/presensi');
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
